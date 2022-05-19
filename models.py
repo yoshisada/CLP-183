@@ -20,4 +20,10 @@ def get_time():
 #
 ## always commit your models to avoid problems later
 
+db.create_table('schedule',
+                Field('year'),
+                Field('instructor_name'),
+                Field('quarter'),
+                Field('class_id'))
+
 db.commit()
