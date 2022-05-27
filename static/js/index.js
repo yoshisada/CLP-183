@@ -18,14 +18,14 @@ let init = (app) => {
     app.enumerate = (a) => {
         // This adds an _idx field to each element of the array.
         let k = 0;
-        a.map((e) => {e._idx = k++;});
+        a.map((e) => { e._idx = k++; });
         return a;
     };
 
     app.decorate = (a) => {
         a.map((e) => {
-            e._state = {class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean"};
-            e._server_vals = {class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2};
+            e._state = { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean" };
+            e._server_vals = { class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2 };
         });
         return a;
     };
@@ -35,32 +35,53 @@ let init = (app) => {
             {
                 class_name: app.vue.add_class_name,
                 class_type: app.vue.add_class_type,
-                _state: {class_name: "clean", class_type: "clean"},
+                quarter_1: app.vue.add_quarter_1,
+                quarter_2: app.vue.add_quarter_2,
+                quarter_3: app.vue.add_quarter_3,
+                summer_1: app.vue.add_summer_1,
+                summer_2: app.vue.add_summer_2,
+                _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean" },
             }).then(function (response) {
-            app.vue.rows.push({
-                id: response.data.id,
-                class_name: app.vue.add_class_name,
-                class_type: app.vue.add_class_type,
-                _state: {class_name: "clean", class_type: "clean"},
-                _server_vals: {
+                app.vue.rows.push({
+                    id: response.data.id,
                     class_name: app.vue.add_class_name,
-                    class_type: app.vue.add_class_type
-                }
+                    class_type: app.vue.add_class_type,
+                    quarter_1: app.vue.add_quarter_1,
+                    quarter_2: app.vue.add_quarter_2,
+                    quarter_3: app.vue.add_quarter_3,
+                    summer_1: app.vue.add_summer_1,
+                    summer_2: app.vue.add_summer_2,
+                    _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean" },
+
+                    _server_vals: {
+                        class_name: app.vue.add_class_name,
+                        class_type: app.vue.add_class_type,
+                        quarter_1: app.vue.add_quarter_1,
+                        quarter_2: app.vue.add_quarter_2,
+                        quarter_3: app.vue.add_quarter_3,
+                        summer_1: app.vue.add_summer_1,
+                        summer_2: app.vue.add_summer_2,
+                    }
+                });
+                app.enumerate(app.vue.rows);
+                app.reset_form();
+                app.set_add_status(false);
             });
-            app.enumerate(app.vue.rows);
-            app.reset_form();
-            app.set_add_status(false);
-        });
     };
 
     app.reset_form = function () {
-        app.vue.add_class_name = "";
-        app.vue.add_class_type = "";
+        class_name: app.vue.add_class_name="";
+        class_type: app.vue.add_class_type="";
+        quarter_1: app.vue.add_quarter_1="";
+        quarter_2: app.vue.add_quarter_2="";
+        quarter_3: app.vue.add_quarter_3="";
+        summer_1: app.vue.add_summer_1="";
+        summer_2: app.vue.add_summer_2="";
     };
 
-    app.delete_contact = function(row_idx) {
+    app.delete_contact = function (row_idx) {
         let id = app.vue.rows[row_idx].id;
-        axios.get(delete_contact_url, {params: {id: id}}).then(function (response) {
+        axios.get(delete_contact_url, { params: { id: id } }).then(function (response) {
             for (let i = 0; i < app.vue.rows.length; i++) {
                 if (app.vue.rows[i].id === id) {
                     app.vue.rows.splice(i, 1);
@@ -68,7 +89,7 @@ let init = (app) => {
                     break;
                 }
             }
-            });
+        });
     };
 
     app.set_add_status = function (new_status) {
