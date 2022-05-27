@@ -32,49 +32,76 @@ from py4web.utils.url_signer import URLSigner
 from .models import get_user_email
 import time
 
+from py4web.utils.form import Form, FormStyleBulma
+from py4web.utils.grid import Grid, GridClassStyleBulma
+
+
+from .models import OLIVE_KINDS
+
 url_signer = URLSigner(session)
 
-@action('index')
-@action.uses('index.html', url_signer)
-def index():
-    return dict(
-        # This is the signed URL for the callback.
-        load_contacts_url = URL('load_contacts', signer=url_signer),
-        add_contact_url = URL('add_contact', signer=url_signer),
-        delete_contact_url = URL('delete_contact', signer=url_signer),
-        edit_contact_url = URL('edit_contact', signer=url_signer),
+class GridEditButton(object):
+    """This is the edit button for the grid."""
+    def __init__(self):
+        self.url = URL('edit')
+        self.append_id = True # append the ID to the edit.
+        self.additional_classes = 'button'
+        self.icon = 'fa-pencil'
+        self.text = 'Edit'
+        self.message = None
+        self.onclick = None # Used for things like confirmation.
+
+@action('index', method=['POST', 'GET']) # /fixtures_example/index
+@action('index/<path:path>', method=['POST', 'GET']) # /fixtures_example/index
+@action.uses('index.html', db, auth.user)
+def index(path=None):
+    grid = Grid(
+        path,
+        query=db.classes.id > 0,
+        search_queries=None, search_form=None,
+        editable=False, deletable=False, details=False, create=False,
+        grid_class_style=GridClassStyleBulma,
+        formstyle=FormStyleBulma,
+        post_action_buttons=[GridEditButton()],
     )
+    grid.formatters = {'olives.olive_kind': lambda v : OLIVE_KINDS.get(v)}
+    return dict(grid=grid)
 
-# This is our very first API function.
-@action('load_contacts')
-@action.uses(url_signer.verify(), db)
-def load_contacts():
-    rows = db(db.contact).select().as_list()
-    return dict(rows=rows)
 
-@action('add_contact', method="POST")
-@action.uses(url_signer.verify(), db)
-def add_contact():
-    id = db.contact.insert(
-        first_name=request.json.get('first_name'),
-        last_name=request.json.get('last_name'),
-    )
-    return dict(id=id)
+def validate_form_weights(form):
+    return
+    """Checks that the gross weight is larger than the net weight."""
+    if form.vars['weight_net'] > form.vars['weight_tot']:
+        form.errors['weight_tot'] = T('The gross weight should be more than the net.')
 
-@action('delete_contact')
-@action.uses(url_signer.verify(), db)
-def delete_contact():
-    id = request.params.get('id')
-    assert id is not None
-    db(db.contact.id == id).delete()
-    return "ok"
+@action('add', method=["GET", "POST"])
+@action.uses('add.html', db, session, auth.user)
+def add():
+    form = Form(db.classes, validation=validate_form_weights,
+                csrf_session=session, formstyle=FormStyleBulma)
+    if form.accepted:
+        redirect(URL('index'))
+    return dict(form=form)
 
-@action('edit_contact', method="POST")
+# @action('edit/<olives_id:int>', method=["GET", "POST"])
+# @action.uses('edit.html', db, session, auth.user)
+# def edit(olives_id=None):
+#     p = db.olives[olives_id]
+#     if p is None:
+#         redirect(URL('index'))
+#     form = Form(db.olives, record=p, deletable=False,
+#                 validation=validate_form_weights,
+#                 csrf_session=session, formstyle=FormStyleBulma)
+#     if form.accepted:
+#         redirect(URL('index'))
+#     return dict(form=form)
+
+@action('edit_class', method="POST")
 @action.uses(url_signer.verify(), db)
 def edit_contact():
     id = request.json.get('id')
     field = request.json.get('field')
     value = request.json.get('value')
-    db(db.contact.id == id).update(**{field: value})
+    db(db.classes.id == id).update(**{field: value})
     time.sleep(1)
     return "ok"
