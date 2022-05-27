@@ -40,65 +40,45 @@ from .models import OLIVE_KINDS
 
 url_signer = URLSigner(session)
 
-class GridEditButton(object):
-    """This is the edit button for the grid."""
-    def __init__(self):
-        self.url = URL('edit')
-        self.append_id = True # append the ID to the edit.
-        self.additional_classes = 'button'
-        self.icon = 'fa-pencil'
-        self.text = 'Edit'
-        self.message = None
-        self.onclick = None # Used for things like confirmation.
-
-@action('index', method=['POST', 'GET']) # /fixtures_example/index
-@action('index/<path:path>', method=['POST', 'GET']) # /fixtures_example/index
-@action.uses('index.html', db, auth.user)
-def index(path=None):
-    grid = Grid(
-        path,
-        query=db.classes.id > 0,
-        search_queries=None, search_form=None,
-        editable=False, deletable=False, details=False, create=False,
-        grid_class_style=GridClassStyleBulma,
-        formstyle=FormStyleBulma,
-        post_action_buttons=[GridEditButton()],
+@action('index')
+@action.uses('index.html', url_signer)
+def index():
+    return dict(
+        # This is the signed URL for the callback.
+        load_classes_url = URL('load_classes', signer=url_signer),
+        add_class_url = URL('add_class', signer=url_signer),
+        delete_class_url = URL('delete_class', signer=url_signer),
+        edit_class_url = URL('edit_class', signer=url_signer),
     )
-    grid.formatters = {'olives.olive_kind': lambda v : OLIVE_KINDS.get(v)}
-    return dict(grid=grid)
 
+# This is our very first API function.
+@action('load_classes')
+@action.uses(url_signer.verify(), db)
+def load_classes():
+    rows = db(db.classes).select().as_list()
+    return dict(rows=rows)
 
-def validate_form_weights(form):
-    return
-    """Checks that the gross weight is larger than the net weight."""
-    if form.vars['weight_net'] > form.vars['weight_tot']:
-        form.errors['weight_tot'] = T('The gross weight should be more than the net.')
+@action('add_class', method="POST")
+@action.uses(url_signer.verify(), db)
+def add_class():
+    print(request.json)
+    id = db.classes.insert(
+        class_name=request.json.get('class_name'),
+        class_type=request.json.get('class_type'),
+    )
+    return dict(id=id)
 
-@action('add', method=["GET", "POST"])
-@action.uses('add.html', db, session, auth.user)
-def add():
-    form = Form(db.classes, validation=validate_form_weights,
-                csrf_session=session, formstyle=FormStyleBulma)
-    if form.accepted:
-        redirect(URL('index'))
-    return dict(form=form)
-
-# @action('edit/<olives_id:int>', method=["GET", "POST"])
-# @action.uses('edit.html', db, session, auth.user)
-# def edit(olives_id=None):
-#     p = db.olives[olives_id]
-#     if p is None:
-#         redirect(URL('index'))
-#     form = Form(db.olives, record=p, deletable=False,
-#                 validation=validate_form_weights,
-#                 csrf_session=session, formstyle=FormStyleBulma)
-#     if form.accepted:
-#         redirect(URL('index'))
-#     return dict(form=form)
+@action('delete_class')
+@action.uses(url_signer.verify(), db)
+def delete_class():
+    id = request.params.get('id')
+    assert id is not None
+    db(db.classes.id == id).delete()
+    return "ok"
 
 @action('edit_class', method="POST")
 @action.uses(url_signer.verify(), db)
-def edit_contact():
+def edit_class():
     id = request.json.get('id')
     field = request.json.get('field')
     value = request.json.get('value')

@@ -10,8 +10,8 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         add_mode: false,
-        add_first_name: "",
-        add_last_name: "",
+        add_class_name: "",
+        add_class_type: "",
         rows: [],
     };
 
@@ -24,8 +24,8 @@ let init = (app) => {
 
     app.decorate = (a) => {
         a.map((e) => {
-            e._state = {first_name: "clean", last_name: "clean"};
-            e._server_vals = {first_name: e.first_name, last_name: e.last_name};
+            e._state = {class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean"};
+            e._server_vals = {class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2};
         });
         return a;
     };
@@ -33,18 +33,18 @@ let init = (app) => {
     app.add_contact = function () {
         axios.post(add_contact_url,
             {
-                first_name: app.vue.add_first_name,
-                last_name: app.vue.add_last_name,
-                _state: {first_name: "clean", last_name: "clean"},
+                class_name: app.vue.add_class_name,
+                class_type: app.vue.add_class_type,
+                _state: {class_name: "clean", class_type: "clean"},
             }).then(function (response) {
             app.vue.rows.push({
                 id: response.data.id,
-                first_name: app.vue.add_first_name,
-                last_name: app.vue.add_last_name,
-                _state: {first_name: "clean", last_name: "clean"},
+                class_name: app.vue.add_class_name,
+                class_type: app.vue.add_class_type,
+                _state: {class_name: "clean", class_type: "clean"},
                 _server_vals: {
-                    first_name: app.vue.add_first_name,
-                    last_name: app.vue.add_last_name
+                    class_name: app.vue.add_class_name,
+                    class_type: app.vue.add_class_type
                 }
             });
             app.enumerate(app.vue.rows);
@@ -54,8 +54,8 @@ let init = (app) => {
     };
 
     app.reset_form = function () {
-        app.vue.add_first_name = "";
-        app.vue.add_last_name = "";
+        app.vue.add_class_name = "";
+        app.vue.add_class_type = "";
     };
 
     app.delete_contact = function(row_idx) {
