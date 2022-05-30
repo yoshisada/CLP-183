@@ -7,7 +7,21 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-
+  
+  <div class="table_header">
+    <div>
+      [[=table_id]]
+    </div>
+    <div>
+      <a class="button" href="[[=URL('archive', table_id)]]">
+        Edit
+      </a>
+      <a class="button" href="[[=URL('archive', table_id)]]">
+        ARCHIVE
+      </a>
+    </div>
+  </div>
+  
   <div v-if="add_mode" class="container block">
     <div class="title">Add Class</div>
     <div class="form">

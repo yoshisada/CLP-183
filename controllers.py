@@ -76,16 +76,23 @@ def add_table():
         form = form
     )
 
-@action('table')
+@action('table/<table_id:int>')
 @action.uses('table.html', url_signer)
-def table():
+def table(table_id = None):
     return dict(
         # This is the signed URL for the callback.
+        table_id = table_id,
         load_classes_url = URL('load_classes', signer=url_signer),
         add_class_url = URL('add_class', signer=url_signer),
         delete_class_url = URL('delete_class', signer=url_signer),
         edit_class_url = URL('edit_class', signer=url_signer),
     )
+
+@action('archive/<table_id:int>')
+@action.uses('archive.html', url_signer)
+def table(table_id = None):
+    db(db.planners.id == table_id).update(status = False)
+    redirect(URL('index'))
 
 # This is our very first API function.
 @action('load_classes')
