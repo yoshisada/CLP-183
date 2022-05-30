@@ -30,13 +30,58 @@ from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
 from .models import get_user_email
+import time
+
+from py4web.utils.form import Form, FormStyleBulma
+from py4web.utils.grid import Grid, GridClassStyleBulma
+
+
+from .models import OLIVE_KINDS
 
 url_signer = URLSigner(session)
 
 @action('index')
-@action.uses('index.html', db, auth, url_signer)
+@action.uses('index.html', url_signer)
 def index():
     return dict(
-        # COMPLETE: return here any signed URLs you need.
-        my_callback_url = URL('my_callback', signer=url_signer),
+        # This is the signed URL for the callback.
+        load_classes_url = URL('load_classes', signer=url_signer),
+        add_class_url = URL('add_class', signer=url_signer),
+        delete_class_url = URL('delete_class', signer=url_signer),
+        edit_class_url = URL('edit_class', signer=url_signer),
     )
+
+# This is our very first API function.
+@action('load_classes')
+@action.uses(url_signer.verify(), db)
+def load_classes():
+    rows = db(db.classes).select().as_list()
+    return dict(rows=rows)
+
+@action('add_class', method="POST")
+@action.uses(url_signer.verify(), db)
+def add_class():
+    print(request.json)
+    id = db.classes.insert(
+        class_name=request.json.get('class_name'),
+        class_type=request.json.get('class_type'),
+    )
+    return dict(id=id)
+
+@action('delete_class')
+@action.uses(url_signer.verify(), db)
+def delete_class():
+    id = request.params.get('id')
+    assert id is not None
+    db(db.classes.id == id).delete()
+    return "ok"
+
+@action('edit_class', method="POST")
+@action.uses(url_signer.verify(), db)
+def edit_class():
+    id = request.json.get('id')
+    field = request.json.get('field')
+    value = request.json.get('value')
+    db(db.classes.id == id).update(**{field: value})
+    time.sleep(1)
+    return "ok"

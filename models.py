@@ -3,7 +3,7 @@ This file defines the database models
 """
 
 import datetime
-from .common import db, Field, auth
+from .common import db, Field, auth, T
 from pydal.validators import *
 
 
@@ -19,5 +19,53 @@ def get_time():
 # db.define_table('thing', Field('name'))
 #
 ## always commit your models to avoid problems later
+
+OLIVE_KINDS = {'k': 'Kalamata', 'l': 'Ligurian'}
+
+db.define_table(
+    'classes',
+    Field('class_name'),
+    Field('class_type'),
+    Field('class_num'),
+    Field('quarter_1'),
+    Field('quarter_2'),
+    Field('quarter_3'),
+    Field('summer_1'),
+    Field('summer_2'),
+    Field('course_time_sections'),
+    Field('actual_times'),
+    
+)
+db.define_table(
+    'users',
+    Field('email'),
+    Field('name'),
+    Field('q1'),
+    Field('q2'),
+    Field('q3'),
+    Field('s1'),
+    Field('s2'),
+    Field('department'),
+    Field('label'), # professor, lecturer, etc
+    Field('access'), #can they access the DB or not
+    
+)
+
+# This should not appear in forms.
+# db.olives.id.readable = db.olives.id.writable = False
+
+# db.olives.olive_name.label = T("Name")
+# db.olives.olive_name.requires = IS_LENGTH(minsize=2)
+
+# db.olives.olive_kind.requires = IS_IN_SET(OLIVE_KINDS)
+# db.olives.olive_kind.default = 'k'
+
+# db.olives.weight_tot.label = "Weight (gross)"
+# db.olives.weight_tot.requires=IS_FLOAT_IN_RANGE(
+#         0, 1000, error_message=T("Please enter a weigh in grams between 0 and 1Kg"))
+
+# db.olives.weight_net.label = "Weight (net, dry)"
+# db.olives.weight_net.requires=IS_FLOAT_IN_RANGE(
+#         0, 1000, error_message=T("Please enter a weigh in grams between 0 and 1Kg"))
 
 db.commit()
