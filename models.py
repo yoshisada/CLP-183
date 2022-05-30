@@ -62,6 +62,14 @@ db.define_table(
     
 )
 
+db.define_table(
+    'planners',
+    Field('name'),
+    Field('status'),
+    Field('class_num'),
+    Field('instruct_num')
+)
+
 # This should not appear in forms.
 # db.olives.id.readable = db.olives.id.writable = False
 

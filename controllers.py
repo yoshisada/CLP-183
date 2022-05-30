@@ -25,7 +25,8 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
-from py4web import action, request, abort, redirect, URL
+from py4web import action, request, abort, redirect, URL, Field
+from pydal.validators import IS_NOT_EMPTY
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
@@ -46,12 +47,33 @@ def index():
     if len(db(db.admin).select().as_list()) == 0 and get_user_email() != None:
         db.admin.insert(email = get_user_email(), name = get_user_name(), permission = "admin")
     perm = db(db.admin.email == get_user_email()).select().as_list()
+    active_tables = db(db.planners.status == True).select().as_list()
+    inactive_tables = db(db.planners.status == False).select().as_list()
     print(perm[0])
     return dict(
         # This is the signed URL for the callback.
         user_name = perm[0]["name"],
         user_perm = perm[0]["permission"],
-        user_email = get_user_email()
+        user_email = get_user_email(),
+        active_tables = active_tables,
+        inactive_tables = inactive_tables
+    )
+
+@action('add_table', method=["GET","POST"])
+@action.uses('add_table.html', url_signer)
+def add_table():
+    if len(db(db.admin.email == get_user_email()).select().as_list()) == 0:
+        return dict(error = True)
+    form = Form(db.planners, deletable=False, formstyle=FormStyleBulma)
+    form = Form([Field('Table_Name', requires=IS_NOT_EMPTY())], csrf_session=session, formstyle=FormStyleBulma)
+    if form.accepted:
+        # The update already happened!
+        db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = 142, instruct_num = 100)
+        redirect(URL('index'))
+    return dict(
+        # This is the signed URL for the callback.
+        error = False,
+        form = form
     )
 
 @action('table')
