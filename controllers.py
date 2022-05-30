@@ -29,7 +29,7 @@ from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email
+from .models import get_user_email, get_user_name
 import time
 
 from py4web.utils.form import Form, FormStyleBulma
@@ -43,6 +43,20 @@ url_signer = URLSigner(session)
 @action('index')
 @action.uses('index.html', url_signer)
 def index():
+    if len(db(db.admin).select().as_list()) == 0 and get_user_email() != None:
+        db.admin.insert(email = get_user_email(), name = get_user_name(), permission = "admin")
+    perm = db(db.admin.email == get_user_email()).select().as_list()
+    print(perm[0])
+    return dict(
+        # This is the signed URL for the callback.
+        user_name = perm[0]["name"],
+        user_perm = perm[0]["permission"],
+        user_email = get_user_email()
+    )
+
+@action('table')
+@action.uses('table.html', url_signer)
+def table():
     return dict(
         # This is the signed URL for the callback.
         load_classes_url = URL('load_classes', signer=url_signer),

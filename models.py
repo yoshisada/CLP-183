@@ -10,6 +10,9 @@ from pydal.validators import *
 def get_user_email():
     return auth.current_user.get('email') if auth.current_user else None
 
+def get_user_name():
+    return auth.current_user.get('name') if auth.current_user else None
+
 def get_time():
     return datetime.datetime.utcnow()
 
@@ -48,6 +51,14 @@ db.define_table(
     Field('department'),
     Field('label'), # professor, lecturer, etc
     Field('access'), #can they access the DB or not
+    
+)
+
+db.define_table(
+    'admin',
+    Field('email'),
+    Field('name'),
+    Field('permission')
     
 )
 
