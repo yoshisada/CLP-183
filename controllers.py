@@ -49,11 +49,18 @@ def index():
     perm = db(db.admin.email == get_user_email()).select().as_list()
     active_tables = db(db.planners.status == True).select().as_list()
     inactive_tables = db(db.planners.status == False).select().as_list()
-    print(perm[0])
+    # print(perm[0])
+    user_name = None
+    user_perm = None
+    print(perm)
+    if len(perm) != 0:
+        user_name = perm[0]["name"]
+        user_perm = perm[0]["permission"]
+
     return dict(
         # This is the signed URL for the callback.
-        user_name = perm[0]["name"],
-        user_perm = perm[0]["permission"],
+        user_name = user_name,
+        user_perm = user_perm,
         user_email = get_user_email(),
         active_tables = active_tables,
         inactive_tables = inactive_tables

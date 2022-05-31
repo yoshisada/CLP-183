@@ -59,7 +59,6 @@ db.define_table(
     Field('email'),
     Field('name'),
     Field('permission')
-    
 )
 
 db.define_table(
