@@ -79,9 +79,10 @@ def add_table():
 @action('table/<table_id:int>')
 @action.uses('table.html', url_signer)
 def table(table_id = None):
+    planner = db(db.planners.id == table_id).select().as_list()[0]
     return dict(
         # This is the signed URL for the callback.
-        table_id = table_id,
+        planner = planner,
         load_classes_url = URL('load_classes', signer=url_signer),
         add_class_url = URL('add_class', signer=url_signer),
         delete_class_url = URL('delete_class', signer=url_signer),
@@ -90,8 +91,14 @@ def table(table_id = None):
 
 @action('archive/<table_id:int>')
 @action.uses('archive.html', url_signer)
-def table(table_id = None):
+def archive(table_id = None):
     db(db.planners.id == table_id).update(status = False)
+    redirect(URL('index'))
+
+@action('unarchive/<table_id:int>')
+@action.uses('unarchive.html', url_signer)
+def unarchive(table_id = None):
+    db(db.planners.id == table_id).update(status = True)
     redirect(URL('index'))
 
 # This is our very first API function.

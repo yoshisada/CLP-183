@@ -10,15 +10,21 @@
   
   <div class="table_header">
     <div>
-      [[=table_id]]
+      [[=planner['id']]]
     </div>
     <div>
-      <a class="button" href="[[=URL('archive', table_id)]]">
+      [[if planner['status'] == "True":]]
+      <a class="button" href="[[=URL('archive', planner['id'])]]">
         Edit
       </a>
-      <a class="button" href="[[=URL('archive', table_id)]]">
+      <a class="button" href="[[=URL('archive', planner['id'])]]">
         ARCHIVE
       </a>
+      [[else:]]
+      <a class="button" href="[[=URL('unarchive', planner['id'])]]">
+        UNARCHIVE
+      </a>
+      [[pass]]
     </div>
   </div>
   

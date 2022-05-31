@@ -102,7 +102,7 @@
               <hr class="rounded" style="margin: 0px;">
               <div style="display: flex;">
                 [[for table in inactive_tables:]]
-                  <div class="planner__tiles">
+                <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
                     <div class="title is-4">[[=table["name"]]]</div>
                     <div class="subtitle is-6" style="
                     display: flex;
@@ -117,7 +117,7 @@
                     
                     
                     
-                  </div>
+                  </a>
                 [[pass]]
               </div>
           </div>
