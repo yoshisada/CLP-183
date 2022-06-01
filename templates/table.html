@@ -14,9 +14,15 @@
     </div>
     <div>
       [[if planner['status'] == "True":]]
-      <a class="button" href="[[=URL('archive', planner['id'])]]">
-        Edit
-      </a>
+      <div class="block" v-if="edit_mode">
+      <button class="button is-primary" @click="save_table_changes">Save</button>
+      <button class="button is-warning" @click="cancel_edit">Cancel</button>
+      </div>
+      <div class="block" v-else>
+        <button class="button" @click="toggle_edit_mode">
+          Edit
+        </button>
+      </div>
       <a class="button" href="[[=URL('archive', planner['id'])]]">
         ARCHIVE
       </a>
@@ -48,7 +54,7 @@
       
       <div class="field">
         <div class="control">
-          <input type="submit" @click="add_contact" value="Add" class="button is-primary">
+          <input type="submit" @click="add_class" value="Add" class="button is-primary">
           <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
         </div>
       </div>
@@ -57,17 +63,18 @@
 
 
   <div class="container block">
-    <h1 class="title">Contacts</h1>
+    <h1 class="title">Classes</h1>
     <table class="table is-striped is-fullwidth">
       <tr>
         <th>Class Name</th>
         <th>Class Type</th>
         <th>Quarter 1</th>
         <th>Quarter 2</th>
-        <th>Quarter 2</th>
+        <th>Quarter 3</th>
         <th>Summer 1</th>
         <th>Summer 2</th>
         <th>Course Time</th>
+        <th>Actual Times</th>
         <th></th>
       </tr>
       <tr v-for="r in rows">
@@ -84,11 +91,11 @@
 
           </div>
         </td>
-        <td><button @click="delete_contact(r._idx)" class="button is-danger">
+        <td><button @click="delete_class(r._idx)" class="button is-danger" v-if="edit_mode">
           <i class="fa fa-trash"></i></button></td>
       </tr>
     </table>
-    <button @click="set_add_status(true)" class="button is-primary">
+    <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
       <i class="fa fa-plus fa-fw"></i> Add Class
     </button>
   </div>
@@ -100,9 +107,9 @@
 <!-- Loads the index-specific js for Vue -->
 <script>
   let load_contacts_url = "[[=XML(load_classes_url)]]";
-  let add_contact_url = "[[=XML(add_class_url)]]";
-  let delete_contact_url = "[[=XML(delete_class_url)]]";
-  let edit_contact_url = "[[=XML(edit_class_url)]]";
+  let add_class_url = "[[=XML(add_class_url)]]";
+  let delete_class_url = "[[=XML(delete_class_url)]]";
+  let edit_class_url = "[[=XML(edit_class_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]

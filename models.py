@@ -39,6 +39,7 @@ db.define_table(
     Field('actual_times'),
     
 )
+
 db.define_table(
     'users',
     Field('email'),
