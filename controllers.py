@@ -87,9 +87,16 @@ def add_table():
 @action.uses('table.html', url_signer)
 def table(table_id = None):
     planner = db(db.planners.id == table_id).select().as_list()[0]
+
+    # instructors = db(db.users.name == get_user_name()).select().as_list()
+    # for instructor in instructors:
+    #     instructor['classes'] = ''
+    #     s = db(db.classes.contact_id == instructor['id']).select()
+
     return dict(
         # This is the signed URL for the callback.
         planner = planner,
+        # instructors = instructors,
         load_classes_url = URL('load_classes', signer=url_signer),
         add_class_url = URL('add_class', signer=url_signer),
         delete_class_url = URL('delete_class', signer=url_signer),

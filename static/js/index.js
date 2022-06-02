@@ -11,6 +11,7 @@ let init = (app) => {
     app.data = {
         edit_mode: false,
         add_mode: false,
+        isActive: 'classes',
         add_class_name: "",
         add_class_type: "",
         rows: [],
@@ -23,36 +24,10 @@ let init = (app) => {
         return a;
     };
 
-    app.toggle_edit_mode = function() {
-        app.vue.edit_mode = !app.vue.edit_mode;
-    };
-
-    app.save_table_changes = function() {
-        entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
-        // Update db
-        for (let i = 0; i < app.vue.rows.length; ++i) {
-            let row = app.vue.rows[i];
-            for (const [key, value] of Object.entries(row)) {
-                // console.log(key, value);
-                if (entries.includes(key) && row._server_vals[key] !== value) {
-                    // console.log(key);
-                    axios.post(edit_class_url, {
-                        id: row.id, field: key, value: value
-                    }).then(function (result) {
-                        // row._state[key] = "clean";
-                        row._server_vals[key] = value;
-                    });
-                }
-              }
-        }
-        // Exit Edit Mode
-        app.toggle_edit_mode();
-    };
-
     app.decorate = (a) => {
         a.map((e) => {
-            e._state = { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean" };
-            e._server_vals = { class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2 };
+            e._state = { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" };
+            e._server_vals = { class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2, course_time_sections: e.course_time_sections, actual_times: e.actual_times };
         });
         return a;
     };
@@ -67,7 +42,9 @@ let init = (app) => {
                 quarter_3: app.vue.add_quarter_3,
                 summer_1: app.vue.add_summer_1,
                 summer_2: app.vue.add_summer_2,
-                _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean" },
+                course_time_sections: app.vue.add_course_time_sections,
+                actual_times: app.vue.add_actual_times,
+                _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" },
             }).then(function (response) {
                 app.vue.rows.push({
                     id: response.data.id,
@@ -78,7 +55,9 @@ let init = (app) => {
                     quarter_3: app.vue.add_quarter_3,
                     summer_1: app.vue.add_summer_1,
                     summer_2: app.vue.add_summer_2,
-                    _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean" },
+                    course_time_sections: app.vue.add_course_time_sections,
+                    actual_times: app.vue.add_actual_times,
+                    _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" },
 
                     _server_vals: {
                         class_name: app.vue.add_class_name,
@@ -88,6 +67,8 @@ let init = (app) => {
                         quarter_3: app.vue.add_quarter_3,
                         summer_1: app.vue.add_summer_1,
                         summer_2: app.vue.add_summer_2,
+                        course_time_sections: app.vue.add_course_time_sections,
+                        actual_times: app.vue.add_actual_times
                     }
                 });
                 app.enumerate(app.vue.rows);
@@ -104,6 +85,8 @@ let init = (app) => {
         quarter_3: app.vue.add_quarter_3="";
         summer_1: app.vue.add_summer_1="";
         summer_2: app.vue.add_summer_2="";
+        course_time_sections: app.vue.add_course_time_sections="";
+        actual_times: app.vue.add_actual_times="";
     };
 
     app.delete_class = function (row_idx) {
@@ -122,6 +105,10 @@ let init = (app) => {
     app.set_add_status = function (new_status) {
         app.vue.add_mode = new_status;
     };
+    
+    app.toggle_edit_mode = function() {
+        app.vue.edit_mode = !app.vue.edit_mode;
+    };
 
     app.start_edit = function (row_idx, fn) {
         if (app.vue.edit_mode) {
@@ -133,14 +120,8 @@ let init = (app) => {
         let row = app.vue.rows[row_idx];
         if (row._state[fn] === 'edit') {
             if (row._server_vals[fn] !== row[fn]) {
-                // row._state[fn] = "pending";
-                // axios.post(edit_class_url, {
-                //     id: row.id, field: fn, value: row[fn]
-                // }).then(function (result) {
-                //     row._state[fn] = "clean";
-                //     row._server_vals[fn] = row[fn];
-                // })
-                row._state[fn] = "clean";
+                // TODO: change to some other visual indicator
+                row._state[fn] = "edit";
             } else {
                 row._state[fn] = "clean";
             }
@@ -148,9 +129,40 @@ let init = (app) => {
     };
 
     app.cancel_edit = function() {
+        entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
+        // Reset table to current server values
+        for (let i = 0; i < app.vue.rows.length; ++i) {
+            let row = app.vue.rows[i];
+            for (const [key, value] of Object.entries(row)) {
+                if (entries.includes(key) && row._server_vals[key] !== value) {
+                    row[key] = row._server_vals[key];
+                    row._state[key] = "clean";
+                }
+              }
+        } 
         // Exit edit mode
         app.toggle_edit_mode();
-        // TODO: reset table to previous values
+    };
+
+    app.save_table_changes = function() {
+        entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
+        // Update db
+        for (let i = 0; i < app.vue.rows.length; ++i) {
+            let row = app.vue.rows[i];
+            for (const [key, value] of Object.entries(row)) {
+                if (entries.includes(key) && row._server_vals[key] !== value) {
+                    row._state[key] = "pending";
+                    axios.post(edit_class_url, {
+                        id: row.id, field: key, value: value
+                    }).then(function (result) {
+                        row._state[key] = "clean";
+                        row._server_vals[key] = value;
+                    });
+                }
+              }
+        }
+        // Exit Edit Mode
+        app.toggle_edit_mode();
     };
 
     // We form the dictionary of all methods, so we can assign them
@@ -178,7 +190,7 @@ let init = (app) => {
     // load the data.
     // For the moment, we 'load' the data from a string.
     app.init = () => {
-        axios.get(load_contacts_url).then(function (response) {
+        axios.get(load_classes_url).then(function (response) {
             app.vue.rows = app.decorate(app.enumerate(response.data.rows));
         });
     };
