@@ -46,22 +46,25 @@ url_signer = URLSigner(session)
 @action.uses('index.html', url_signer)
 def index():
     if len(db(db.admin).select().as_list()) == 0 and get_user_email() != None:
-        db.admin.insert(email = get_user_email(), name = get_user_name(), permission = "admin")
+        db.admin.insert(email = get_user_email(), name = get_user_name(), permission = "admin", true_permission = "admin")
     perm = db(db.admin.email == get_user_email()).select().as_list()
     active_tables = db(db.planners.status == True).select().as_list()
     inactive_tables = db(db.planners.status == False).select().as_list()
     # print(perm[0])
     user_name = None
     user_perm = None
+    user_true_perm = None
     print(perm)
     if len(perm) != 0:
         user_name = perm[0]["name"]
         user_perm = perm[0]["permission"]
+        user_true_perm = perm[0]["true_permission"]
 
     return dict(
         # This is the signed URL for the callback.
         user_name = user_name,
         user_perm = user_perm,
+        true_perm = user_true_perm,
         user_email = get_user_email(),
         active_tables = active_tables,
         inactive_tables = inactive_tables
@@ -114,6 +117,13 @@ def init_table():
         error = False,
         form = form
     )
+
+@action('change_perm/<perm>', method=["GET","POST"])
+@action.uses('change_perm.html', url_signer)
+def change_perm(perm = "instructor"):
+    db(db.admin.email == get_user_email()).update(permission = perm)
+    redirect(URL('index'))
+    return
 
 @action('table/<table_id:int>')
 @action.uses('table.html', url_signer)

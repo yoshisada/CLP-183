@@ -69,6 +69,29 @@
       </div>
       <div style="margin: 10px">
         [[if user_perm == "admin":]]
+        [[if true_perm == "admin":]]
+        Change Permissions to: <div class="tabs is-toggle">
+          <ul>
+            <li class="is-active">
+              <a>
+                <span>Admin</span>
+              </a>
+            </li>
+            <li>
+              <a href="[[=URL('change_perm', 'manager')]]">
+                
+                <span>Manager</span>
+              </a>
+            </li>
+            <li>
+              <a href="[[=URL('change_perm', 'instructor')]]">
+                
+                <span>Instructor</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        [[pass]]
           <div style="margin: 5% 0%;">
             <div style="display: flex; justify-content: space-between; margin-top: 5%;"> 
               <div class="title is-4" style="margin-bottom: 2%;">Current Planners</div> 
@@ -122,7 +145,55 @@
               </div>
           </div>
           </div>
+        [[elif user_perm == "manager":]]
+        <div>
+          <div class="tabs is-toggle">
+            <ul>
+              <li >
+                <a href="[[=URL('change_perm','admin')]]">
+                  <span>Admin</span>
+                </a>
+              </li>
+              <li class="is-active">
+                <a href="[[=URL('change_perm','manager')]]">
+                  
+                  <span>Manager</span>
+                </a>
+              </li>
+              <li>
+                <a href="[[=URL('change_perm','instructor')]]">
+                  
+                  <span>Instructor</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+          blah
+        </div>
         [[else:]]
+        [[if true_perm == "admin":]]
+        Change Permissions to: <div class="tabs is-toggle">
+          <ul>
+            <li>
+              <a href="[[=URL('change_perm','admin')]]">
+                <span>Admin</span>
+              </a>
+            </li>
+            <li>
+              <a href="[[=URL('change_perm','manager')]]">
+                
+                <span>Manager</span>
+              </a>
+            </li>
+            <li class="is-active">
+              <a href="[[=URL('change_perm','instructor')]]">
+                
+                <span>Instructor</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        [[pass]]
         <div style="margin: 5% 0%;">
           <div style="display: flex; justify-content: space-between; margin-top: 5%;"> 
             <div class="title is-4" style="margin-bottom: 2%;">Current Assignments</div> 

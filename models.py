@@ -30,9 +30,19 @@ db.define_table(
     Field('class_name'),
     Field('class_type'),
     Field('class_num'),
+
     Field('quarter_1'),
+    Field('quarter_1_TA'),
+    Field('quarter_1_size'),
+
     Field('quarter_2'),
+    Field('quarter_2_TA'),
+    Field('quarter_2_size'),
+
     Field('quarter_3'),
+    Field('quarter_3_TA'),
+    Field('quarter_3_size'),
+
     Field('summer_1'),
     Field('summer_2'),
     Field('course_time_sections'),
@@ -67,7 +77,8 @@ db.define_table(
     'admin',
     Field('email'),
     Field('name'),
-    Field('permission')
+    Field('permission'),
+    Field('true_permission')
 )
 
 db.define_table(
