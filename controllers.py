@@ -26,14 +26,15 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 """
 
 from py4web import action, request, abort, redirect, URL, Field
-from pydal.validators import IS_NOT_EMPTY
+from pydal.validators import IS_NOT_EMPTY, IS_IN_SET
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
 from .models import get_user_email, get_user_name
 import time
+from .courses import *
 
-from py4web.utils.form import Form, FormStyleBulma
+from py4web.utils.form import Form, FormStyleBulma, RadioWidget
 from py4web.utils.grid import Grid, GridClassStyleBulma
 
 
@@ -72,11 +73,26 @@ def add_table():
     if len(db(db.admin.email == get_user_email()).select().as_list()) == 0:
         return dict(error = True)
     form = Form(db.planners, deletable=False, formstyle=FormStyleBulma)
-    form = Form([Field('Table_Name', requires=IS_NOT_EMPTY())], csrf_session=session, formstyle=FormStyleBulma)
+    # FormStyleBulma.widgets['Populate_with_default_class_data']=RadioWidget()
+    # FormStyleBulma.widgets['Populate_with_default_instructor_data']=RadioWidget()
+    form = Form([Field('Table_Name', requires=IS_NOT_EMPTY()), 
+        Field('Populate_with_default_class_data', requires=IS_IN_SET(['Yes','No'])),
+        Field('Populate_with_default_instructor_data', requires=IS_IN_SET(['Yes','No']))], csrf_session=session, formstyle=FormStyleBulma)
     if form.accepted:
         # The update already happened!
         db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = 142, instruct_num = 100)
         redirect(URL('index'))
+    return dict(
+        # This is the signed URL for the callback.
+        error = False,
+        form = form
+    )
+
+@action('init_table', method=["GET","POST"])
+@action.uses('init_table.html', url_signer)
+def init_table():
+    print(courses)
+    redirect(URL('add_table'))
     return dict(
         # This is the signed URL for the callback.
         error = False,
@@ -97,8 +113,8 @@ def table(table_id = None):
         # This is the signed URL for the callback.
         planner = planner,
         # instructors = instructors,
-        load_classes_url = URL('load_classes', signer=url_signer),
-        add_class_url = URL('add_class', signer=url_signer),
+        load_classes_url = URL('load_classes', table_id, signer=url_signer),
+        add_class_url = URL('add_class', table_id, signer=url_signer),
         delete_class_url = URL('delete_class', signer=url_signer),
         edit_class_url = URL('edit_class', signer=url_signer),
     )
@@ -116,19 +132,20 @@ def unarchive(table_id = None):
     redirect(URL('index'))
 
 # This is our very first API function.
-@action('load_classes')
+@action('load_classes/<table_id:int>')
 @action.uses(url_signer.verify(), db)
-def load_classes():
-    rows = db(db.classes).select().as_list()
+def load_classes(table_id = None):
+    rows = db(db.classes.planner_id == table_id).select().as_list()
     return dict(rows=rows)
 
-@action('add_class', method="POST")
+@action('add_class/<table_id:int>', method="POST")
 @action.uses(url_signer.verify(), db)
-def add_class():
+def add_class(table_id = None):
     print(request.json)
     id = db.classes.insert(
         class_name=request.json.get('class_name'),
         class_type=request.json.get('class_type'),
+        planner_id = table_id
     )
     return dict(id=id)
 

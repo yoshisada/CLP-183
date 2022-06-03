@@ -37,6 +37,7 @@ db.define_table(
     Field('summer_2'),
     Field('course_time_sections'),
     Field('actual_times'),
+    Field('planner_id'),
     
 )
 
@@ -52,7 +53,7 @@ db.define_table(
     Field('department'),
     Field('label'), # professor, lecturer, etc
     Field('access'), #can they access the DB or not
-    
+    Field('planner_id'),
 )
 
 db.define_table(
