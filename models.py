@@ -38,6 +38,13 @@ db.define_table(
     Field('course_time_sections'),
     Field('actual_times'),
     Field('planner_id'),
+
+    # some optional fields, idk if we will use them all or not
+    Field('default_inst'),
+    Field('default_quarters'),
+    Field('class_sub'),
+    Field('href'),
+    Field('class_desc'),
     
 )
 
