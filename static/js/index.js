@@ -29,7 +29,7 @@ let init = (app) => {
 
     app.decorate = (a) => {
         a.map((e) => {
-            e._state = { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" };
+            e._state = { name: "clean", email: "clean", class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" };
             e._server_vals = { class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2, course_time_sections: e.course_time_sections, actual_times: e.actual_times };
         });
         return a;
@@ -90,7 +90,7 @@ let init = (app) => {
                 quarter_3: app.vue.add_quarter_3,
                 summer_1: app.vue.add_summer_1,
                 summer_2: app.vue.add_summer_2,
-                _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" },
+                _state: { name: "clean", email: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" },
             }).then(function (response) {
                 app.vue.rows_i.push({
                     id: response.data.id,
@@ -102,7 +102,7 @@ let init = (app) => {
                     quarter_3: app.vue.add_quarter_3,
                     summer_1: app.vue.add_summer_1,
                     summer_2: app.vue.add_summer_2,
-                    _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" },
+                    _state: { name: "clean", email: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" },
 
                     _server_vals: {
                         name: app.vue.add_instructor_name,
