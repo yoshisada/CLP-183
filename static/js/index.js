@@ -30,7 +30,7 @@ let init = (app) => {
     app.decorate = (a) => {
         a.map((e) => {
             e._state = { name: "clean", email: "clean", class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" };
-            e._server_vals = { class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2, course_time_sections: e.course_time_sections, actual_times: e.actual_times };
+            e._server_vals = {name: e.name, email: e.email, class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2, course_time_sections: e.course_time_sections, actual_times: e.actual_times };
         });
         return a;
     };
@@ -165,6 +165,7 @@ let init = (app) => {
         table = table == app.data.rows ? app.vue.rows : app.vue.rows_i;
         let row = table[row_idx];
         if (row._state[fn] === 'edit') {
+            console.log(row._server_vals[fn]);
             if (row._server_vals[fn] !== row[fn]) {
                 // TODO: change to some other visual indicator
                 row._state[fn] = "edit";
