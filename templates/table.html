@@ -19,7 +19,7 @@
       [[if planner['status'] == "True":]]
       <div class="block" v-if="edit_mode">
       <button class="button is-primary" @click="save_table_changes">Save</button>
-      <button class="button is-warning" @click="cancel_edit">Cancel</button>
+      <button class="button is-warning" @click="cancel_edits">Cancel</button>
       </div>
       <div class="block" v-else>
         
@@ -104,8 +104,8 @@
                           :class="{'is-focused': r._state[fn] === 'edit',
                                   'is-static': r._state[fn] === 'clean'}"
                           :readonly="r._state[fn] === 'clean'"
-                          @click="start_edit(r._idx, fn)"
-                          @blur="stop_edit(r._idx, fn)"
+                          @click="start_edit(rows, r._idx, fn)"
+                          @blur="stop_edit(rows, r._idx, fn)"
                     />
   
                   </div>
@@ -170,8 +170,8 @@
                           :class="{'is-focused': r._state[fn] === 'edit',
                                   'is-static': r._state[fn] === 'clean'}"
                           :readonly="r._state[fn] === 'clean'"
-                          @click="start_edit(r._idx, fn)"
-                          @blur="stop_edit(r._idx, fn)"
+                          @click="start_edit(rows_i, r._idx, fn)"
+                          @blur="stop_edit(rows_i, r._idx, fn)"
                     />
                   </div>
                 </td>

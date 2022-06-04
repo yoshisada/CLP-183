@@ -86,7 +86,7 @@ def add_table():
         # The update already happened!
         
         if form.vars['Populate_with_default_class_data'] == 'Yes':
-            planner_id = db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = len(courses), instruct_num = 0)
+            planner_id = db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = len(courses), instruct_num = 100)
             for course in courses:
                 print(course)
                 db.classes.insert(class_name = course['class_name'], 
@@ -186,7 +186,7 @@ def add_class(table_id = None):
 
 @action('add_instructor/<table_id:int>', method="POST")
 @action.uses(url_signer.verify(), db)
-def add_class(table_id = None):
+def add_instructor(table_id = None):
     print("REQUEST",request.json)
     id = db.instructors.insert(
         email=request.json.get('email'),
