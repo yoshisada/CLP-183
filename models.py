@@ -59,14 +59,14 @@ db.define_table(
 )
 
 db.define_table(
-    'users',
+    'instructors',
     Field('email'),
     Field('name'),
-    Field('q1'),
-    Field('q2'),
-    Field('q3'),
-    Field('s1'),
-    Field('s2'),
+    Field('quarter_1'),
+    Field('quarter_2'),
+    Field('quarter_3'),
+    Field('summer_1'),
+    Field('summer_2'),
     Field('department'),
     Field('label'), # professor, lecturer, etc
     Field('access'), #can they access the DB or not

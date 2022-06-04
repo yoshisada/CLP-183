@@ -25,6 +25,7 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
+from unicodedata import name
 from py4web import action, request, abort, redirect, URL, Field
 from pydal.validators import IS_NOT_EMPTY, IS_IN_SET
 from yatl.helpers import A
@@ -140,7 +141,9 @@ def table(table_id = None):
         planner = planner,
         # instructors = instructors,
         load_classes_url = URL('load_classes', table_id, signer=url_signer),
+        load_instructors_url = URL('load_instructors', table_id, signer=url_signer),
         add_class_url = URL('add_class', table_id, signer=url_signer),
+        add_instructors_url = URL('add_instructor', table_id, signer=url_signer),
         delete_class_url = URL('delete_class', signer=url_signer),
         edit_class_url = URL('edit_class', signer=url_signer),
     )
@@ -164,6 +167,12 @@ def load_classes(table_id = None):
     rows = db(db.classes.planner_id == table_id).select().as_list()
     return dict(rows=rows)
 
+@action('load_instructors/<table_id:int>')
+@action.uses(url_signer.verify(), db)
+def load_instructors(table_id = None):
+    rows = db(db.instructors.planner_id == table_id).select().as_list()
+    return dict(rows=rows)
+
 @action('add_class/<table_id:int>', method="POST")
 @action.uses(url_signer.verify(), db)
 def add_class(table_id = None):
@@ -173,6 +182,18 @@ def add_class(table_id = None):
         class_type=request.json.get('class_type'),
         planner_id = table_id
     )
+    return dict(id=id)
+
+@action('add_instructor/<table_id:int>', method="POST")
+@action.uses(url_signer.verify(), db)
+def add_class(table_id = None):
+    print("REQUEST",request.json)
+    id = db.instructors.insert(
+        email=request.json.get('email'),
+        name=request.json.get('name'),
+        planner_id = table_id
+    )
+    print(id, table_id)
     return dict(id=id)
 
 @action('delete_class')

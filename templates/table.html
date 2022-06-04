@@ -38,32 +38,7 @@
     </div>
   </div>
   
-  <div v-if="add_mode" class="container block">
-    <div class="title">Add Class</div>
-    <div class="form">
-
-      <!-- This looks like a form, but is not.  We just need the inputs. -->
-      <div class="field">
-        <label class="label">Class Name:</label>
-        <div class="control">
-          <input type="text" v-model="add_class_name" class="input">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Class Type:</label>
-        <div class="control">
-          <input type="text" v-model="add_class_type" class="input">
-        </div>
-      </div>
-      
-      <div class="field">
-        <div class="control">
-          <input type="submit" @click="add_class" value="Add" class="button is-primary">
-          <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
-        </div>
-      </div>
-    </div>
-  </div>
+  
 
   <!-- TABS -->
   <div class="container block">
@@ -75,10 +50,38 @@
         </ul>        
       </div>
       <!-- TAB CONTENTS -->
-      <div>
+      
         <section class="tab-content">
           <!-- CLASSES TAB -->
+          
           <div class="content" v-bind:class="{ 'is-active': isActive == 'classes' }" v-if="isActive == 'classes'">
+            <div v-if="add_mode" class="container block">
+              <div class="title">Add Class</div>
+              <div class="form">
+          
+                <!-- This looks like a form, but is not.  We just need the inputs. -->
+                <div class="field">
+                  <label class="label">Class Name:</label>
+                  <div class="control">
+                    <input type="text" v-model="add_class_name" class="input">
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Class Type:</label>
+                  <div class="control">
+                    <input type="text" v-model="add_class_type" class="input">
+                  </div>
+                </div>
+                
+                <div class="field">
+                  <div class="control">
+                    <input type="submit" @click="add_class" value="Add" class="button is-primary">
+                    <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
             <h1 class="title">Classes</h1>
             <table class="table is-striped is-fullwidth">
               <tr>
@@ -118,11 +121,40 @@
           </div>
         <section class="tab-content">
           <!-- INSTRUCTORS TAB -->
+          
           <div class="content" v-bind:class="{ 'is-active': isActive == 'instructors' }" v-if="isActive == 'instructors'">
+            <div v-if="add_mode" class="container block">
+              <div class="title">Add Instructor</div>
+              <div class="form">
+          
+                <!-- This looks like a form, but is not.  We just need the inputs. -->
+                <div class="field">
+                  <label class="label">Instructor Name:</label>
+                  <div class="control">
+                    <input type="text" v-model="add_instructor_name" class="input">
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Instructor Email:</label>
+                  <div class="control">
+                    <input type="text" v-model="add_instructor_email" class="input">
+                  </div>
+                </div>
+                
+                <div class="field">
+                  <div class="control">
+                    <input type="submit" @click="add_instructor" value="Add" class="button is-primary">
+                    <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <h1 class="title">Instructors</h1>
             <table class="table is-striped is-fullwidth">
               <tr>
                 <th>Instructor Name</th>
+                <th>Email</th>
                 <th>Fall</th>
                 <th>Winter</th>
                 <th>Spring</th>
@@ -130,8 +162,8 @@
                 <th>Summer 2</th>
                 <th></th>
               </tr>
-              <tr v-for="r in rows">
-                <td v-for="fn in ['instr_name', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']">
+              <tr v-for="r in rows_i">
+                <td v-for="fn in ['name', 'email', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']">
                   <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
                     
                     <input type="text" class="input" v-model="r[fn]"
@@ -143,11 +175,11 @@
                     />
                   </div>
                 </td>
-                <td><button class="button is-danger" v-if="edit_mode">
+                <td><button  class="button is-danger" v-if="edit_mode">
                   <i class="fa fa-trash"></i></button></td>
               </tr>
               </table>
-              <button class="button is-primary" v-if="edit_mode">
+              <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
                 <i class="fa fa-plus fa-fw"></i> Add Instructor
               </button>
             </table>
@@ -162,7 +194,9 @@
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
 <script>
+  let load_instructors_url = "[[=XML(load_instructors_url)]]";
   let load_classes_url = "[[=XML(load_classes_url)]]";
+  let add_instructor_url = "[[=XML(add_instructors_url)]]";
   let add_class_url = "[[=XML(add_class_url)]]";
   let delete_class_url = "[[=XML(delete_class_url)]]";
   let edit_class_url = "[[=XML(edit_class_url)]]";

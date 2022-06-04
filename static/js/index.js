@@ -14,7 +14,10 @@ let init = (app) => {
         isActive: 'classes',
         add_class_name: "",
         add_class_type: "",
+        add_instructor_name: "",
+        add_instructor_email: "",
         rows: [],
+        rows_i: [],
     };
 
     app.enumerate = (a) => {
@@ -76,6 +79,47 @@ let init = (app) => {
                 app.set_add_status(false);
             });
     };
+
+    app.add_instructor = function () {
+        axios.post(add_instructor_url,
+            {
+                name: app.vue.add_instructor_name,
+                email: app.vue.add_instructor_email,
+                quarter_1: app.vue.add_quarter_1,
+                quarter_2: app.vue.add_quarter_2,
+                quarter_3: app.vue.add_quarter_3,
+                summer_1: app.vue.add_summer_1,
+                summer_2: app.vue.add_summer_2,
+                _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" },
+            }).then(function (response) {
+                app.vue.rows_i.push({
+                    id: response.data.id,
+                    name: app.vue.add_instructor_name,
+                    email: app.vue.add_instructor_email,
+                    // class_type: app.vue.add_class_type,
+                    quarter_1: app.vue.add_quarter_1,
+                    quarter_2: app.vue.add_quarter_2,
+                    quarter_3: app.vue.add_quarter_3,
+                    summer_1: app.vue.add_summer_1,
+                    summer_2: app.vue.add_summer_2,
+                    _state: { class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" },
+
+                    _server_vals: {
+                        name: app.vue.add_instructor_name,
+                        email: app.vue.add_instructor_email,
+                        quarter_1: app.vue.add_quarter_1,
+                        quarter_2: app.vue.add_quarter_2,
+                        quarter_3: app.vue.add_quarter_3,
+                        summer_1: app.vue.add_summer_1,
+                        summer_2: app.vue.add_summer_2,
+                    }
+                });
+                app.enumerate(app.vue.rows_i);
+                app.reset_form();
+                app.set_add_status(false);
+            });
+    };
+
 
     app.reset_form = function () {
         class_name: app.vue.add_class_name="";
@@ -171,6 +215,7 @@ let init = (app) => {
         toggle_edit_mode: app.toggle_edit_mode,
         save_table_changes: app.save_table_changes,
         add_class: app.add_class,
+        add_instructor: app.add_instructor,
         set_add_status: app.set_add_status,
         delete_class: app.delete_class,
         start_edit: app.start_edit,
@@ -192,6 +237,10 @@ let init = (app) => {
     app.init = () => {
         axios.get(load_classes_url).then(function (response) {
             app.vue.rows = app.decorate(app.enumerate(response.data.rows));
+        });
+
+        axios.get(load_instructors_url).then(function (response) {
+            app.vue.rows_i = app.decorate(app.enumerate(response.data.rows));
         });
     };
 
