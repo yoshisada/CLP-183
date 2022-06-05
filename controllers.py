@@ -60,6 +60,35 @@ def index():
         user_name = perm[0]["name"]
         user_perm = perm[0]["permission"]
         user_true_perm = perm[0]["true_permission"]
+    if user_true_perm == "admin" or user_true_perm == "manager":
+        view_all = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+        user_assignment = db(db.instructors.email == get_user_email()).select().as_list()
+        all_assignment = []
+        print(view_all)
+        if view_all == 'True':
+            all_assignment = db(db.instructors).select("planner_id").as_list()
+        else:
+            all_assignment = db(db.instructors.email ==  get_user_email()).select("planner_id").as_list()
+        asgn_list = []
+        for i in all_assignment:
+            asgn_list.append(int(i['_extra']['planner_id']))
+        asgn_list = list(set(asgn_list))
+        print(asgn_list)
+        planners = db(db.planners.id).select().as_list()
+        active_all = []
+        inactive_all = []
+        for i in planners:
+            if i['id'] in asgn_list:
+                if i['status'] == 'True':
+                    active_all.append(i)
+                else:
+                    inactive_all.append(i)
+
+        print(active_all, inactive_all)
+    else:
+        view_all = False
+        user_assignment = []
+        all_assignment = []
 
     return dict(
         # This is the signed URL for the callback.
@@ -68,7 +97,12 @@ def index():
         true_perm = user_true_perm,
         user_email = get_user_email(),
         active_tables = active_tables,
-        inactive_tables = inactive_tables
+        inactive_tables = inactive_tables,
+        
+        view_all = view_all,
+        active_all = active_all,
+        inactive_all = inactive_all,
+        all_assignment = all_assignment
     )
 
 @action('add_table', method=["GET","POST"])
@@ -108,21 +142,32 @@ def add_table():
         form = form
     )
 
-@action('init_table', method=["GET","POST"])
-@action.uses('init_table.html', url_signer)
-def init_table():
-    print(courses)
-    redirect(URL('add_table'))
-    return dict(
-        # This is the signed URL for the callback.
-        error = False,
-        form = form
-    )
+@action('assignments/<planner_id>/<perm>', method=["GET","POST"])
+@action.uses('assignments.html', url_signer)
+def assignments(planner_id, perm):
+    view_all = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+    assignments = []
+    
+    if view_all == 'True':
+        assignments = db((db.instructors.planner_id == planner_id)).select().as_list()
+    else:
+        assignments = db((db.instructors.planner_id == planner_id) & (db.instructors.email == get_user_email())).select().as_list()
+    print(assignments)
+
+    return dict(assignments = assignments)
+
+@action('change_view_all', method=["GET","POST"])
+@action.uses('change_view_all.html', url_signer)
+def change_view_all():
+    view_all_i = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+    db(db.admin.email == get_user_email()).update(view_all = False if view_all_i == "True" else True)
+    redirect(URL('index'))
+    return
 
 @action('change_perm/<perm>', method=["GET","POST"])
 @action.uses('change_perm.html', url_signer)
 def change_perm(perm = "instructor"):
-    db(db.admin.email == get_user_email()).update(permission = perm)
+    db(db.admin.email == get_user_email()).update(permission = perm, view_all = False)
     redirect(URL('index'))
     return
 
