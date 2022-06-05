@@ -30,7 +30,7 @@ let init = (app) => {
     app.decorate = (a) => {
         a.map((e) => {
             e._state = { name: "clean", email: "clean", class_name: "clean", class_type: "clean", quarter_1: "clean", quarter_2: "clean", quarter_3: "clean", summer_1: "clean", summer_2: "clean", course_time_sections: "clean", actual_times: "clean" };
-            e._server_vals = { class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2, course_time_sections: e.course_time_sections, actual_times: e.actual_times };
+            e._server_vals = {name: e.name, email: e.email, class_name: e.class_name, class_type: e.class_type, quarter_1: e.quarter_1, quarter_2: e.quarter_2, quarter_3: e.quarter_3, summer_1: e.summer_1, summer_2: e.summer_2, course_time_sections: e.course_time_sections, actual_times: e.actual_times };
         });
         return a;
     };
@@ -154,15 +154,18 @@ let init = (app) => {
         app.vue.edit_mode = !app.vue.edit_mode;
     };
 
-    app.start_edit = function (row_idx, fn) {
+    app.start_edit = function (table, row_idx, fn) {
         if (app.vue.edit_mode) {
-            app.vue.rows[row_idx]._state[fn] = "edit";
+            table = table == app.data.rows ? app.vue.rows : app.vue.rows_i;
+            table[row_idx]._state[fn] = "edit";
         }
     };
 
-    app.stop_edit = function (row_idx, fn) {
-        let row = app.vue.rows[row_idx];
+    app.stop_edit = function (table, row_idx, fn) {
+        table = table == app.data.rows ? app.vue.rows : app.vue.rows_i;
+        let row = table[row_idx];
         if (row._state[fn] === 'edit') {
+            console.log(row._server_vals[fn]);
             if (row._server_vals[fn] !== row[fn]) {
                 // TODO: change to some other visual indicator
                 row._state[fn] = "edit";
@@ -172,20 +175,27 @@ let init = (app) => {
         }
     };
 
-    app.cancel_edit = function() {
+    app.cancel_edits = function() {
+        app.cancel_edit(app.data.rows);
+        app.cancel_edit(app.data.rows_i);
+
+        // Exit edit mode
+        app.toggle_edit_mode();
+    }
+
+    app.cancel_edit = function(table) {
         entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
         // Reset table to current server values
-        for (let i = 0; i < app.vue.rows.length; ++i) {
-            let row = app.vue.rows[i];
+        table == app.data.rows ? app.vue.rows : app.vue.rows_i; 
+        for (let i = 0; i < table.length; ++i) {
+            let row = table[i];
             for (const [key, value] of Object.entries(row)) {
                 if (entries.includes(key) && row._server_vals[key] !== value) {
                     row[key] = row._server_vals[key];
                     row._state[key] = "clean";
                 }
               }
-        } 
-        // Exit edit mode
-        app.toggle_edit_mode();
+        }
     };
 
     app.save_table_changes = function() {
@@ -220,7 +230,8 @@ let init = (app) => {
         delete_class: app.delete_class,
         start_edit: app.start_edit,
         stop_edit: app.stop_edit,
-        cancel_edit: app.cancel_edit
+        cancel_edit: app.cancel_edit,
+        cancel_edits: app.cancel_edits
     };
 
     // This creates the Vue instance.
