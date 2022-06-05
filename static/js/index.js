@@ -165,7 +165,6 @@ let init = (app) => {
         table = table == app.data.rows ? app.vue.rows : app.vue.rows_i;
         let row = table[row_idx];
         if (row._state[fn] === 'edit') {
-            console.log(row._server_vals[fn]);
             if (row._server_vals[fn] !== row[fn]) {
                 // TODO: change to some other visual indicator
                 row._state[fn] = "edit";
@@ -198,6 +197,7 @@ let init = (app) => {
         }
     };
 
+    // TODO: update vue for 'instructors' tab
     app.save_table_changes = function() {
         entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
         // Update db
@@ -211,10 +211,29 @@ let init = (app) => {
                     }).then(function (result) {
                         row._state[key] = "clean";
                         row._server_vals[key] = value;
+                        // row_i._state[key] = "clean";
+                        // row_i._server_vals[key] = ;
                     });
                 }
               }
         }
+
+        // TEMPORARY FIX
+        for (let i = 0; i < app.vue.rows_i.length; ++i) {
+            let row = app.vue.rows_i[i];
+            for (const [key, value] of Object.entries(row)) {
+                if (entries.includes(key) && row._server_vals[key] !== value) {
+                    row._state[key] = "pending";
+                    axios.post(edit_instructor_url, {
+                        id: row.id, field: key, value: value
+                    }).then(function (result) {
+                        row._state[key] = "clean";
+                        row._server_vals[key] = value;
+                    });
+                }
+              }
+        }
+
         // Exit Edit Mode
         app.toggle_edit_mode();
     };
