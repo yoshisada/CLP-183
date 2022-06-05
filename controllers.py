@@ -87,6 +87,8 @@ def index():
         print(active_all, inactive_all)
     else:
         view_all = False
+        active_all = []
+        inactive_all=[]
         user_assignment = []
         all_assignment = []
 
