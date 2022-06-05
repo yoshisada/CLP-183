@@ -101,6 +101,16 @@ def add_table():
                     )
         else:
             db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = 0, instruct_num = 0)
+
+
+        if form.vars['Populate_with_default_instructor_data'] == 'Yes':
+            # planner_id = db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = len(courses), instruct_num = 100)
+            for course in courses:
+                # print(course)
+                db.instructors.insert(name = course['class_instructor'],
+                    planner_id = planner_id
+                    )
+
         redirect(URL('index'))
     return dict(
         # This is the signed URL for the callback.
@@ -146,6 +156,7 @@ def table(table_id = None):
         add_instructors_url = URL('add_instructor', table_id, signer=url_signer),
         delete_class_url = URL('delete_class', signer=url_signer),
         edit_class_url = URL('edit_class', signer=url_signer),
+        edit_classes_url = URL('edit_classes', signer=url_signer),
         edit_instructor_url = URL('edit_instructor', signer=url_signer)
     )
 
@@ -204,12 +215,10 @@ def edit_class():
     id = request.json.get('id')
     field = request.json.get('field')  # quarter
     value = request.json.get('value')  # instr name
-    db(db.classes.id == id).update(**{field: value})
-    
-    # time.sleep(1)
+    db(db.classes.id == id).update(**{field: value})   
 
     # update instructor table
-    # instructor_name = db(db.classes.id == id).select().as_list()[0][field]
+    instructor_name = db(db.classes.id == id).select().as_list()[0][field]
     instructor_entry = db(db.instructors.name == value).select().as_list()
     quarter = instructor_entry[0][field]
     class_name = db(db.classes.id == id).select().as_list()[0]['class_name']
@@ -225,32 +234,31 @@ def edit_class():
     time.sleep(1)
     return "ok"
 
+@action('edit_classes')
+@action.uses('edit_classes.html', url_signer)
+def edit_classes():
+    print('edit classes func')
+
+
+    # instructor = db(db.instructors.id == instructor_id).select().as_list()
+    
+    # return dict(
+    #     name = name,
+    #     classes = classes
+    # )
+
 @action('edit_instructor', method="POST")
 @action.uses(url_signer.verify(), db)
 def edit_instructor():
     # update class table
-    id = request.json.get('id')
-    field = request.json.get('field')  # quarter
-    value = request.json.get('value')  # instr name
-    db(db.instructors.id == id).update(**{field: value})
-    
+    # id = request.json.get('id')
+    # field = request.json.get('field')  # quarter
+    # value = request.json.get('value')  # class name
+    # db(db.instructors.id == id).update(**{field: value})
+
+    # print('request: {}, {}'.format(field, value))
+
     # time.sleep(1)
-
-    # update instructor table
-    # instructor_name = db(db.classes.id == id).select().as_list()[0][field]
-    # instructor_entry = db(db.instructors.name == value).select().as_list()
-    # quarter = instructor_entry[0][field]
-    # class_name = db(db.classes.id == id).select().as_list()[0]['class_name']
-    # if quarter is None:
-    #     db(db.instructors.name == value).update(**{field: class_name})
-    # else:
-    #     class_list = quarter.split(', ')
-    #     if class_name not in class_list:
-    #         class_list.append(class_name)
-    #         class_list = '%s' % ', '.join(map(str, class_list))
-    #         db(db.instructors.name == value).update(**{field: class_list})
-
-    time.sleep(1)
     return "ok"
 
 @action('delete_class')

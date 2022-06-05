@@ -170,13 +170,15 @@
                           :class="{'is-focused': r._state[fn] === 'edit',
                                   'is-static': r._state[fn] === 'clean'}"
                           :readonly="r._state[fn] === 'clean'"
-                          @click="start_edit(rows_i, r._idx, fn)"
-                          @blur="stop_edit(rows_i, r._idx, fn)"
+                          @click="start_edit(rows, r._idx, fn)"
+                          @blur="stop_edit(rows, r._idx, fn)"
                     />
                   </div>
                 </td>
+                <!-- <td><button  class="button is-warning" v-if="edit_mode">
+                  <i class="fa fa-edit"></i></button></td>
                 <td><button  class="button is-danger" v-if="edit_mode">
-                  <i class="fa fa-trash"></i></button></td>
+                  <i class="fa fa-trash"></i></button></td> -->
               </tr>
               </table>
               <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
@@ -200,6 +202,7 @@
   let add_class_url = "[[=XML(add_class_url)]]";
   let delete_class_url = "[[=XML(delete_class_url)]]";
   let edit_class_url = "[[=XML(edit_class_url)]]";
+  let edit_classes_url = "[[=XML(edit_classes_url)]]";
   let edit_instructor_url = "[[=XML(edit_instructor_url)]]";
 </script>
 <script src="js/index.js"></script>

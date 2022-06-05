@@ -156,13 +156,13 @@ let init = (app) => {
 
     app.start_edit = function (table, row_idx, fn) {
         if (app.vue.edit_mode) {
-            table = table == app.data.rows ? app.vue.rows : app.vue.rows_i;
+            table = (table == app.data.rows ? app.vue.rows : app.vue.rows_i);
             table[row_idx]._state[fn] = "edit";
         }
     };
 
     app.stop_edit = function (table, row_idx, fn) {
-        table = table == app.data.rows ? app.vue.rows : app.vue.rows_i;
+        table = (table == app.data.rows ? app.vue.rows : app.vue.rows_i);
         let row = table[row_idx];
         if (row._state[fn] === 'edit') {
             if (row._server_vals[fn] !== row[fn]) {
@@ -185,7 +185,7 @@ let init = (app) => {
     app.cancel_edit = function(table) {
         entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
         // Reset table to current server values
-        table == app.data.rows ? app.vue.rows : app.vue.rows_i; 
+        table = table == app.data.rows ? app.vue.rows : app.vue.rows_i;
         for (let i = 0; i < table.length; ++i) {
             let row = table[i];
             for (const [key, value] of Object.entries(row)) {
@@ -197,58 +197,66 @@ let init = (app) => {
         }
     };
 
+    app.edit_classes = function() {
+        axios.get(edit_classes_url);
+    };
+
+
+
     // TODO: update vue for 'instructors' tab
     app.save_table_changes = function() {
-        entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
-        // Update db
-        for (let i = 0; i < app.vue.rows.length; ++i) {
-            let row = app.vue.rows[i];
-            for (const [key, value] of Object.entries(row)) {
-                if (entries.includes(key) && row._server_vals[key] !== value) {
-                    row._state[key] = "pending";
-                    axios.post(edit_class_url, {
-                        id: row.id, field: key, value: value
-                    }).then(function (result) {
-                        row._state[key] = "clean";
-                        row._server_vals[key] = value;
-                        // row_i._state[key] = "clean";
-                        // row_i._server_vals[key] = ;
-                    });
-                }
-              }
-        }
+        // Update db and vue
+        // app.update_table(app.data.rows);
+        // app.update_table(app.data.rows_i);
 
-        // TEMPORARY FIX
-        for (let i = 0; i < app.vue.rows_i.length; ++i) {
-            let row = app.vue.rows_i[i];
-            for (const [key, value] of Object.entries(row)) {
-                if (entries.includes(key) && row._server_vals[key] !== value) {
-                    row._state[key] = "pending";
-                    axios.post(edit_instructor_url, {
-                        id: row.id, field: key, value: value
-                    }).then(function (result) {
-                        row._state[key] = "clean";
-                        row._server_vals[key] = value;
-                    });
-                }
-              }
-        }
+        console.log(app.vue.rows_i[0]._server_vals['quarter_1']);
 
         // Exit Edit Mode
         app.toggle_edit_mode();
     };
+
+    app.update_table = function(table_view) {
+        entries = ['name', 'email', 'class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
+        
+        table = (table_view == app.data.rows ? app.vue.rows : app.vue.rows_i);
+        func = (table_view == app.data.rows ? edit_class_url : edit_instructor_url);
+
+        // console.log(func);
+
+        for (let i = 0; i < table.length; ++i) {
+            let row = table[i];
+            for (const [key, value] of Object.entries(row)) {
+                // console.log('key: ', key);
+                // console.log('server val: ', row._server_vals[key]);
+                if (entries.includes(key) && row._server_vals[key] !== value) {
+                    row._state[key] = "pending";
+                    axios.post(func, {
+                        id: row.id, field: key, value: value
+                    }).then(function (result) {
+                        row._state[key] = "clean";
+                        row._server_vals[key] = value;
+                    });
+                    row._state[key] = "clean";
+                    row._server_vals[key] = value;
+                }
+              }
+        }
+    }
+
 
     // We form the dictionary of all methods, so we can assign them
     // to the Vue app in a single blow.
     app.methods = {
         toggle_edit_mode: app.toggle_edit_mode,
         save_table_changes: app.save_table_changes,
+        update_table: app.update_table,
         add_class: app.add_class,
         add_instructor: app.add_instructor,
         set_add_status: app.set_add_status,
         delete_class: app.delete_class,
         start_edit: app.start_edit,
         stop_edit: app.stop_edit,
+        edit_classes: app.edit_classes,
         cancel_edit: app.cancel_edit,
         cancel_edits: app.cancel_edits
     };
