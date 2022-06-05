@@ -216,7 +216,7 @@
             <hr class="rounded" style="margin: 0px;">
             <div style="display: flex;">
               [[for table in active_all:]]
-                <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                <a class="planner__tiles" href="[[=URL('assignments', table['id'], user_perm)]]">
                   <div class="title is-4">[[=table["name"]]]</div>
                   <div class="subtitle is-6" style="
                   display: flex;
@@ -241,7 +241,7 @@
               <hr class="rounded" style="margin: 0px;">
               <div style="display: flex;">
                 [[for table in inactive_all:]]
-                  <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                  <a class="planner__tiles" href="[[=URL('assignments', table['id'], user_perm)]]">
                     <div class="title is-4">[[=table["name"]]]</div>
                     <div class="subtitle is-6" style="
                     display: flex;
@@ -292,7 +292,7 @@
           <hr class="rounded" style="margin: 0px;">
           <div style="display: flex;">
             [[for table in active_all:]]
-              <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+              <a class="planner__tiles" href="[[=URL('assignments', table['id'], user_perm)]]">
                 <div class="title is-4">[[=table["name"]]]</div>
                 <div class="subtitle is-6" style="
                 display: flex;
@@ -317,7 +317,7 @@
             <hr class="rounded" style="margin: 0px;">
             <div style="display: flex;">
               [[for table in inactive_all:]]
-                <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                <a class="planner__tiles" href="[[=URL('assignments', table['id'], user_perm)]]">
                   <div class="title is-4">[[=table["name"]]]</div>
                   <div class="subtitle is-6" style="
                   display: flex;

@@ -142,6 +142,20 @@ def add_table():
         form = form
     )
 
+@action('assignments/<planner_id>/<perm>', method=["GET","POST"])
+@action.uses('assignments.html', url_signer)
+def assignments(planner_id, perm):
+    view_all = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+    assignments = []
+    
+    if view_all == 'True':
+        assignments = db((db.instructors.planner_id == planner_id)).select().as_list()
+    else:
+        assignments = db((db.instructors.planner_id == planner_id) & (db.instructors.email == get_user_email())).select().as_list()
+    print(assignments)
+
+    return dict(assignments = assignments)
+
 @action('change_view_all', method=["GET","POST"])
 @action.uses('change_view_all.html', url_signer)
 def change_view_all():
@@ -153,8 +167,7 @@ def change_view_all():
 @action('change_perm/<perm>', method=["GET","POST"])
 @action.uses('change_perm.html', url_signer)
 def change_perm(perm = "instructor"):
-    db(db.admin.email == get_user_email()).update(permission = perm)
-    db(db.admin.email == get_user_email()).update(view_all = False)
+    db(db.admin.email == get_user_email()).update(permission = perm, view_all = False)
     redirect(URL('index'))
     return
 
