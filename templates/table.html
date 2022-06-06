@@ -18,13 +18,8 @@
     <div>
       [[if planner['status'] == "True":]]
       <div class="block" v-if="edit_mode">
-
-        <button class="button is-primary" @click="save_table_changes">Save</button>
-        <button class="button is-warning" @click="cancel_edit">Cancel</button>
-
-<!--       <button class="button is-primary" @click="save_table_changes">Save</button>
-      <button class="button is-warning" @click="cancel_edits">Cancel</button> -->
-
+      <button class="button is-primary" @click="save_table_changes">Save</button>
+      <button class="button is-warning" @click="cancel_edits">Cancel</button>
       </div>
       <div class="block" v-else>
         
@@ -34,13 +29,12 @@
         <a class="button" href="[[=URL('archive', planner['id'])]]">
           ARCHIVE
         </a>
-      </div>
         [[else:]]
         <a class="button" href="[[=URL('unarchive', planner['id'])]]">
           UNARCHIVE
         </a>
         [[pass]]
-      
+      </div>
     </div>
   </div>
   

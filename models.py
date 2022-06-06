@@ -78,8 +78,7 @@ db.define_table(
     Field('email'),
     Field('name'),
     Field('permission'),
-    Field('true_permission'),
-    Field('view_all', default=True)
+    Field('true_permission')
 )
 
 db.define_table(
