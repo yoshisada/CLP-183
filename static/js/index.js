@@ -126,15 +126,18 @@ let init = (app) => {
         // Exit Edit Mode
         app.toggle_edit_mode();
     };
-
-    app.set_error =  function (row_idx) {
-        let row = app.vue.rows[row_idx];
-        if (row.last_name === "test"){
-            row.is_error = "true"
     
-        };
-        console.log(row.is_error)
-    };
+    app.search = function () {
+        if (app.vue.query.length > 1) {
+            axios.get(search_url, {params: {q: app.vue.query}})
+                .then(function (result) {
+                    app.vue.results = result.data.results;
+                });
+        } else {
+            app.vue.results = [];
+        }
+    }
+
 
 
     // We form the dictionary of all methods, so we can assign them
@@ -149,7 +152,8 @@ let init = (app) => {
         start_edit: app.start_edit,
         stop_edit: app.stop_edit,
         cancel_edit: app.cancel_edit,
-        cancel_edits: app.cancel_edits
+        cancel_edits: app.cancel_edits,
+        search: app.search,
         //set_error: app.set_error,
     };
 
