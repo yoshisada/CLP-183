@@ -18,6 +18,8 @@ let init = (app) => {
         add_instructor_email: "",
         rows: [],
         rows_i: [],
+        rows_changes: {},
+        rows_i_changes: {}
     };
 
     app.enumerate = (a) => {
@@ -161,17 +163,29 @@ let init = (app) => {
         }
     };
 
-    app.stop_edit = function (table, row_idx, fn) {
-        table = (table == app.data.rows ? app.vue.rows : app.vue.rows_i);
+    app.stop_edit = function (table_view, row_idx, fn) {
+        table = (table_view == app.data.rows ? app.vue.rows : app.vue.rows_i);
+        table_changes = (table_view == app.data.rows ? app.data.rows_changes : app.data.rows_i_changes);
+
         let row = table[row_idx];
-        if (row._state[fn] === 'edit') {
-            if (row._server_vals[fn] !== row[fn]) {
+        if (row._state[fn] === 'edit') {  // if editing
+            if (row._server_vals[fn] !== row[fn]) {  // and a change has been made
+                // make record of change
+                table_changes[row_idx] = {
+                    'table': (table_view == app.data.rows ? 'classes' : 'instr'),
+                    'id': row.id,
+                    'key': fn,
+                    'value': row[fn],
+                };
                 // TODO: change to some other visual indicator
                 row._state[fn] = "edit";
             } else {
                 row._state[fn] = "clean";
+                // remove record of change
+                delete table_changes[row_idx];
             }
         }
+        // console.log(table_changes);
     };
 
     app.cancel_edits = function() {
@@ -182,10 +196,20 @@ let init = (app) => {
         app.toggle_edit_mode();
     }
 
+    app.clear_changes_logs = function() {
+        // clear changes dicts
+        for (const key in app.data.rows_changes) {
+            delete app.data.rows_changes[key];
+        }
+        for (const key in app.data.rows_i_changes) {
+            delete app.data.rows_i_changes[key];
+        }
+    };
+
     app.cancel_edit = function(table) {
-        entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
+        let entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
         // Reset table to current server values
-        table = table == app.data.rows ? app.vue.rows : app.vue.rows_i;
+        table = (table == app.data.rows ? app.vue.rows : app.vue.rows_i);
         for (let i = 0; i < table.length; ++i) {
             let row = table[i];
             for (const [key, value] of Object.entries(row)) {
@@ -195,54 +219,65 @@ let init = (app) => {
                 }
               }
         }
+        app.clear_changes_logs();    
     };
 
     app.edit_classes = function() {
         axios.get(edit_classes_url);
     };
 
-
-
     // TODO: update vue for 'instructors' tab
     app.save_table_changes = function() {
         // Update db and vue
-        // app.update_table(app.data.rows);
-        // app.update_table(app.data.rows_i);
+        app.update_table(app.data.rows);
+        app.update_table(app.data.rows_i);
 
-        console.log(app.vue.rows_i[0]._server_vals['quarter_1']);
+        // clear change logs
+        app.clear_changes_logs();
 
         // Exit Edit Mode
         app.toggle_edit_mode();
     };
 
     app.update_table = function(table_view) {
-        entries = ['name', 'email', 'class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
+        let entries = ['name', 'email', 'class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
         
         table = (table_view == app.data.rows ? app.vue.rows : app.vue.rows_i);
         func = (table_view == app.data.rows ? edit_class_url : edit_instructor_url);
+        table_changes = (table_view == app.data.rows ? app.data.rows_changes : app.data.rows_i_changes);
+        console.log(table_changes);
+        for (const row_idx in table_changes) {
+            console.log('row_idx: ', row_idx, 'row: ', table_changes[row_idx]);            
+        }
+        // update db only if there are changes
+        if (Object.keys(table_changes).length > 0) {
 
-        // console.log(func);
+            for (const row_idx in table_changes) {
+                // console.log('row_idx: ', row_idx, 'row: ', table_changes[row_idx]);
+                field = table_changes[row_idx]['key'];
+                table[row_idx]._state[field] = 'pending';                
+            }
 
-        for (let i = 0; i < table.length; ++i) {
-            let row = table[i];
-            for (const [key, value] of Object.entries(row)) {
-                // console.log('key: ', key);
-                // console.log('server val: ', row._server_vals[key]);
-                if (entries.includes(key) && row._server_vals[key] !== value) {
-                    row._state[key] = "pending";
-                    axios.post(func, {
-                        id: row.id, field: key, value: value
-                    }).then(function (result) {
-                        row._state[key] = "clean";
-                        row._server_vals[key] = value;
-                    });
-                    row._state[key] = "clean";
-                    row._server_vals[key] = value;
-                }
-              }
+            axios.post(update_tables_url, {
+                changes_list: table_changes
+            }).then(function (result) {
+                // putting the loop here doesnt work
+            });
+            // update vue
+            for (const row_idx in table_changes) {
+                // table[row_idx][table_changes[row_idx]] = table_changes[row];
+                field = table_changes[row_idx]['key'];
+                value = table_changes[row_idx]['value'];
+                
+                // update current table/tab
+                table[row_idx]._server_vals[field] = value;
+                table[row_idx][field] = value;
+                table[row_idx]._state[field] = 'clean';
+
+                // update other table/tab
+            }
         }
     }
-
 
     // We form the dictionary of all methods, so we can assign them
     // to the Vue app in a single blow.
@@ -258,7 +293,8 @@ let init = (app) => {
         stop_edit: app.stop_edit,
         edit_classes: app.edit_classes,
         cancel_edit: app.cancel_edit,
-        cancel_edits: app.cancel_edits
+        cancel_edits: app.cancel_edits,
+        clear_changes_logs: app.clear_changes_logs
     };
 
     // This creates the Vue instance.
