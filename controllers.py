@@ -101,6 +101,16 @@ def add_table():
                     )
         else:
             db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = 0, instruct_num = 0)
+
+
+        if form.vars['Populate_with_default_instructor_data'] == 'Yes':
+            # planner_id = db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = len(courses), instruct_num = 100)
+            for course in courses:
+                # print(course)
+                db.instructors.insert(name = course['class_instructor'],
+                    planner_id = planner_id
+                    )
+
         redirect(URL('index'))
     return dict(
         # This is the signed URL for the callback.
@@ -146,6 +156,9 @@ def table(table_id = None):
         add_instructors_url = URL('add_instructor', table_id, signer=url_signer),
         delete_class_url = URL('delete_class', signer=url_signer),
         edit_class_url = URL('edit_class', signer=url_signer),
+        edit_classes_url = URL('edit_classes', signer=url_signer),
+        edit_instructor_url = URL('edit_instructor', signer=url_signer),
+        update_tables_url = URL('update_tables', signer=url_signer)
     )
 
 @action('archive/<table_id:int>')
@@ -196,6 +209,62 @@ def add_instructor(table_id = None):
     print(id, table_id)
     return dict(id=id)
 
+# def parse_instr_classlist(class_list):
+#     class_list = class_list.split(', ')
+
+#     return class_list
+
+@action('edit_class', method="POST")
+@action.uses(url_signer.verify(), db)
+def edit_class():
+    # update class table
+    id = request.json.get('id')
+    field = request.json.get('field')  # quarter
+    value = request.json.get('value')  # instr name
+    db(db.classes.id == id).update(**{field: value})   
+
+    # update instructor table
+    instructor_name = db(db.classes.id == id).select().as_list()[0][field]
+    instructor_entry = db(db.instructors.name == value).select().as_list()
+    quarter = instructor_entry[0][field]
+    class_name = db(db.classes.id == id).select().as_list()[0]['class_name']
+    if quarter is None:
+        db(db.instructors.name == value).update(**{field: class_name})
+    else:
+        class_list = quarter.split(', ')
+        if class_name not in class_list:
+            class_list.append(class_name)
+            class_list = '%s' % ', '.join(map(str, class_list))
+            db(db.instructors.name == value).update(**{field: class_list})
+
+    time.sleep(1)
+    return "ok"
+
+@action('edit_classes')
+@action.uses('edit_classes.html', url_signer)
+def edit_classes():
+    pass
+    # instructor = db(db.instructors.id == instructor_id).select().as_list()
+    
+    # return dict(
+    #     name = name,
+    #     classes = classes
+    # )
+
+@action('edit_instructor', method="POST")
+@action.uses(url_signer.verify(), db)
+def edit_instructor():
+    # update class table
+    # id = request.json.get('id')
+    # field = request.json.get('field')  # quarter
+    # value = request.json.get('value')  # class name
+    # db(db.instructors.id == id).update(**{field: value})
+
+    # print('request: {}, {}'.format(field, value))
+
+    # time.sleep(1)
+    return "ok"
+
 @action('delete_class')
 @action.uses(url_signer.verify(), db)
 def delete_class():
@@ -204,13 +273,60 @@ def delete_class():
     db(db.classes.id == id).delete()
     return "ok"
 
-@action('edit_class', method="POST")
+@action('update_tables', method="POST")
 @action.uses(url_signer.verify(), db)
-def edit_class():
-    id = request.json.get('id')
-    field = request.json.get('field')
-    value = request.json.get('value')
-    db(db.classes.id == id).update(**{field: value})
+def update_tables():
+    changes_list = request.json.get('changes_list').values()
+    # print(changes_list)
+    for change in list(changes_list):
+        # CHANGE TO CLASSES TAB
+        if change['table'] == 'classes':
+            # update class table
+            db(db.classes.id == change['id']).update(**{change['key']: change['value']})
+            
+            # cross-reference and update instr table
+            instructor_name = db(db.classes.id == change['id']).select().as_list()[0][change['key']]
+            instructor_entry = db(db.instructors.name == change['value']).select().as_list()
+            quarter = instructor_entry[0][change['key']]
+            class_name = db(db.classes.id == change['id']).select().as_list()[0]['class_name']
+            if quarter is None:
+                db(db.instructors.name == change['value']).update(**{change['key']: class_name})
+            else:
+                class_list = quarter.split(', ')
+                if class_name not in class_list:
+                    class_list.append(class_name)
+                    class_list = '%s' % ', '.join(map(str, class_list))
+                    db(db.instructors.name == change['value']).update(**{change['key']: class_list})
+        # CHANGE TO INSTRUCTORS TAB
+        elif change['table'] == 'instr':
+            # update instr
+            instructor_entry = db(db.instructors.id == change['id']).select().as_list()
+            instructor_name = instructor_entry[0]['name']
+            # class_list = instructor_entry[0][change['key']]
+            # if class_list not None:
+            #     class_list = class_list.split(', ')  # current classes
+
+            new_class_list = change['value'].split(', ')
+            new_class_entry = '%s' % ', '.join(map(str, new_class_list))
+            # print(change['key'], new_class_list)
+            db(db.instructors.id == change['id']).update(**{change['key']: new_class_entry})
+            
+            # TODO: cross-reference and classes table
+            # print('new list: {}'.format(new_class_list))
+            for new_class in new_class_list:
+                # check CLASS table,
+                class_check = db(db.classes.class_name == new_class).select().as_list()
+                # if no isntr listed:
+                if class_check[0][change['key']] is None:
+                    # update with this instr
+                    db(db.classes.class_name == new_class).update(**{change['key']: instructor_name})
+                # elif class has different instr:
+                elif class_check[0][change['key']] is not instructor_name:
+                    pass
+                    # add new (duplicate) class with this instr
+                # elif no such class:
+                    # add class with this instr
+
     time.sleep(1)
     return "ok"
 

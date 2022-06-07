@@ -49,13 +49,14 @@ db.define_table(
     Field('actual_times'),
     Field('planner_id'),
 
+    # Field('instructor_id', 'reference instructors'),
+
     # some optional fields, idk if we will use them all or not
     Field('default_inst'),
     Field('default_quarters'),
     Field('class_sub'),
     Field('href'),
-    Field('class_desc'),
-    
+    Field('class_desc'),   
 )
 
 db.define_table(

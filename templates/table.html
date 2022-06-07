@@ -189,7 +189,12 @@
                   </div>
 
                 </td>
+                <!-- <td><a  href="edit_classes.html" class="button is-warning" v-if="edit_mode">
+                  <i class="fa fa-edit"></i></a></td>
                 <td><button  class="button is-danger" v-if="edit_mode">
+
+                  <i class="fa fa-trash"></i></button></td> -->
+
                   <i class="fa fa-trash"></i></button></td>
                   <!-- Uncomment to see if parameter is_error is showing -->
                   <!-- <td>
@@ -217,6 +222,9 @@
   let add_class_url = "[[=XML(add_class_url)]]";
   let delete_class_url = "[[=XML(delete_class_url)]]";
   let edit_class_url = "[[=XML(edit_class_url)]]";
+  let edit_classes_url = "[[=XML(edit_classes_url)]]";
+  let edit_instructor_url = "[[=XML(edit_instructor_url)]]";
+  let update_tables_url = "[[=XML(update_tables_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]
