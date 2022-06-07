@@ -165,7 +165,7 @@
               <tr v-for="r in rows_i">
                 <td v-for="fn in ['name', 'email', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']">
                   <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
-                    
+<!-- Active class bind to hasError a css to chec is is_error is set true-->                    
                     <input type="text" class="input" v-model="r[fn]"
                           :class="{ hasError: r.is_error }"
                           :class="{'is-focused': r._state[fn] === 'edit',
@@ -191,6 +191,9 @@
                 </td>
                 <td><button  class="button is-danger" v-if="edit_mode">
                   <i class="fa fa-trash"></i></button></td>
+                  <!-- Uncomment to see if parameter is_error is showing -->
+                  <!-- <td>
+                    <i :class="{ hasError: r.is_error }"> {{ r.is_error }}</i></td> -->
               </tr>
               </table>
               <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
