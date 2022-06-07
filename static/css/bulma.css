@@ -11703,3 +11703,13 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
   padding: 3rem 1.5rem 6rem;
 }
 /*# sourceMappingURL=bulma.css.map */
+
+/****************************************************
+error classes
+ ****************************************************/
+/* addded css for project */
+
+ .hasError {
+  background: rgb(204, 204, 86);
+  color: red;
+}
