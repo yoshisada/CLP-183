@@ -167,6 +167,7 @@
                   <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
                     
                     <input type="text" class="input" v-model="r[fn]"
+                          :class="{ hasError: r.is_error }"
                           :class="{'is-focused': r._state[fn] === 'edit',
                                   'is-static': r._state[fn] === 'clean'}"
                           :readonly="r._state[fn] === 'clean'"
