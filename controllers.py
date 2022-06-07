@@ -347,16 +347,26 @@ def update_tables():
             for new_class in new_class_list:
                 # check CLASS table,
                 class_check = db(db.classes.class_name == new_class).select().as_list()
+                # print(class_check)
                 # if no isntr listed:
                 if class_check[0][change['key']] is None:
                     # update with this instr
                     db(db.classes.class_name == new_class).update(**{change['key']: instructor_name})
                 # elif class has different instr:
-                elif class_check[0][change['key']] is not instructor_name:
-                    pass
+                elif class_check[0][change['key']] is not instructor_name:                    
                     # add new (duplicate) class with this instr
-                # elif no such class:
-                    # add class with this instr
+                    db.classes.insert(
+                        class_name = new_class,
+                        class_type = class_check[0]['class_name'].split(" ")[0], 
+                        class_num = class_check[0]['class_name'].split(" ")[1],
+                        class_sub = class_check[0]['class_subtitle'], 
+                        class_desc = course['class_description'], 
+                        href = class_check[0]['href'],
+                        default_inst = class_check[0]['class_instructor'].split(", "),
+                        default_quarters = class_check[0]['class_quarters'].split(", "),
+                        planner_id = class_check[0]['planner_id']
+                    )
+                    db(db.classes.class_name == new_class).update(**{change['key']: instructor_name})
 
     time.sleep(1)
     return "ok"

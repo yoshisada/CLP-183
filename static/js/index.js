@@ -167,13 +167,13 @@ let init = (app) => {
 
     app.stop_edit = function (table_view, row_idx, fn) {
         table = (table_view == app.data.rows ? app.vue.rows : app.vue.rows_i);
-        table_changes = (table_view == app.data.rows ? app.data.rows_changes : app.data.rows_i_changes);
+        current_tab_changes = (table_view == app.data.rows ? app.data.rows_changes : app.data.rows_i_changes);
 
         let row = table[row_idx];
         if (row._state[fn] === 'edit') {  // if editing
             if (row._server_vals[fn] !== row[fn]) {  // and a change has been made
                 // make record of change
-                table_changes[row_idx] = {
+                current_tab_changes[row_idx] = {
                     'table': (table_view == app.data.rows ? 'classes' : 'instr'),
                     'id': row.id,
                     'key': fn,
@@ -184,12 +184,11 @@ let init = (app) => {
             } else {
                 row._state[fn] = "clean";
                 // remove record of change
-                delete table_changes[row_idx];
+                delete current_tab_changes[row_idx];
             }
         }
         if (row[fn] === "test"){
-            row.is_error = true
-    
+            row.is_error = true    
         };
     };
 
@@ -225,6 +224,7 @@ let init = (app) => {
         }
     };
 
+    // TODO: update to dictionary implementation
     app.cancel_edit = function(table) {
         let entries = ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
         // Reset table to current server values
@@ -262,12 +262,14 @@ let init = (app) => {
         let entries = ['name', 'email', 'class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times'];
         
         table = (table_view == app.data.rows ? app.vue.rows : app.vue.rows_i);
-        func = (table_view == app.data.rows ? edit_class_url : edit_instructor_url);
+        table_op = (table_view == app.data.rows ? app.vue.rows_i : app.vue.rows);
+        // func = (table_view == app.data.rows ? edit_class_url : edit_instructor_url);
         table_changes = (table_view == app.data.rows ? app.data.rows_changes : app.data.rows_i_changes);
-        console.log(table_changes);
-        for (const row_idx in table_changes) {
-            console.log('row_idx: ', row_idx, 'row: ', table_changes[row_idx]);            
-        }
+        // console.log(table_op);
+
+        // for (const row_idx in table_changes) {
+        //     console.log('row_idx: ', row_idx, 'row: ', table_changes[row_idx]);            
+        // }
         // update db only if there are changes
         if (Object.keys(table_changes).length > 0) {
 
@@ -292,11 +294,10 @@ let init = (app) => {
                 table[row_idx]._server_vals[field] = value;
                 table[row_idx][field] = value;
                 table[row_idx]._state[field] = 'clean';
-
-                // update other table/tab
             }
         }
     }
+
     app.search = function () {
         if (app.vue.query.length > 1) {
             axios.get(search_url, {params: {q: app.vue.query}})
