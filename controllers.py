@@ -359,15 +359,18 @@ def update_tables():
                         class_name = new_class,
                         class_type = class_check[0]['class_name'].split(" ")[0], 
                         class_num = class_check[0]['class_name'].split(" ")[1],
-                        class_sub = class_check[0]['class_subtitle'], 
-                        class_desc = course['class_description'], 
+                        class_sub = class_check[0]['class_sub'],
+                        class_desc = class_check[0]['class_desc'],
                         href = class_check[0]['href'],
-                        default_inst = class_check[0]['class_instructor'].split(", "),
-                        default_quarters = class_check[0]['class_quarters'].split(", "),
+                        default_inst = class_check[0]['default_inst'].split(", "),
+                        default_quarters = class_check[0]['default_quarters'].split(", "),
                         planner_id = class_check[0]['planner_id']
                     )
-                    db(db.classes.class_name == new_class).update(**{change['key']: instructor_name})
-
+                    classes = db(db.classes.class_name == new_class).select().as_list()
+                    new_id = max([class_entry['id'] for class_entry in classes])
+                    # print('ID: ', classes[-1]['id'])
+                    db((db.classes.class_name == new_class) & (db.classes.id == new_id)).update(**{change['key']: instructor_name})
+    # redirect(URL('table'))
     time.sleep(1)
     return "ok"
 
