@@ -9,6 +9,8 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
+        query: "",
+        results: [],
         edit_mode: false,
         add_mode: false,
         isActive: 'classes',
@@ -185,8 +187,25 @@ let init = (app) => {
                 delete table_changes[row_idx];
             }
         }
-        // console.log(table_changes);
+        if (row[fn] === "test"){
+            row.is_error = true
+    
+        };
     };
+
+    // boiler plate for setting an error function outside of scope
+    // app.set_error =  function (row_idx, fn) {
+    //     let row = app.vue.rows[row_idx];
+    //     if(row[fn] === undefined) {
+    //         alert("myProperty value is the special value `undefined`");
+    //       }
+    //     if (row[fn] === "test"){
+    //         row.is_error = true
+    
+    //     };
+    //     console.log(row.last_name)
+    //     console.log(row.is_error)
+    // };
 
     app.cancel_edits = function() {
         app.cancel_edit(app.data.rows);
@@ -276,6 +295,17 @@ let init = (app) => {
 
                 // update other table/tab
             }
+        }
+    }
+    app.search = function () {
+        if (app.vue.query.length > 1) {
+            axios.get(search_url, {params: {q: app.vue.query}})
+                .then(function (result) {
+                    app.vue.results = result.data.results;
+                });
+        } else {
+            app.vue.results = [];
+
         }
     }
 

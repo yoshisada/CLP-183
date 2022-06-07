@@ -329,3 +329,11 @@ def update_tables():
 
     time.sleep(1)
     return "ok"
+
+@action('search')
+@action.uses()
+def search():
+   # q = request.params.get("q")
+   # results = [q + ":" + str(uuid.uuid1()) for _ in range(random.randint(2, 6))]
+    results = [db.classes]
+    return dict(results=results)
