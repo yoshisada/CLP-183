@@ -9,6 +9,8 @@ let init = (app) => {
 
     // This is the Vue data.
     app.data = {
+        query: "",
+        results: [],
         edit_mode: false,
         add_mode: false,
         isActive: 'classes',
@@ -218,6 +220,17 @@ let init = (app) => {
         // Exit Edit Mode
         app.toggle_edit_mode();
     };
+
+    app.search = function () {
+        if (app.vue.query.length > 1) {
+            axios.get(search_url, {params: {q: app.vue.query}})
+                .then(function (result) {
+                    app.vue.results = result.data.results;
+                });
+        } else {
+            app.vue.results = [];
+        }
+    }
 
     // We form the dictionary of all methods, so we can assign them
     // to the Vue app in a single blow.

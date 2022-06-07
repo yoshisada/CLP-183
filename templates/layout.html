@@ -28,11 +28,11 @@
         <a href="[[=URL('index') ]]" class="navbar-item">
           Home
         </a>
+    <!-- Dropdown 1 -->
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
             Current Planner
           </a>
-  
           <div class="navbar-dropdown">
             <a href="[[=URL('basic_grid') ]]" class="navbar-item">
               1
@@ -51,6 +51,7 @@
             </a>
           </div>
         </div>
+  <!-- Dropdown 2 -->
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
             Advanced Planner
@@ -68,8 +69,16 @@
             </a>
           </div>
         </div>
+<!-- Adding search breaks table??? -->
+        <!-- <div class=" navbar-item" id="vue-target" v-cloak>
+          <div class="control block">
+            <input class="input" type="text" v-model="query" @keyup="search" />
+          </div>
+        
+          <div v-for="r in results">{{r}}</div>
+        </div> -->
+        
       </div>
-  
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
