@@ -18,13 +18,8 @@
     <div>
       [[if planner['status'] == "True":]]
       <div class="block" v-if="edit_mode">
-
-        <button class="button is-primary" @click="save_table_changes">Save</button>
-        <button class="button is-warning" @click="cancel_edit">Cancel</button>
-
-<!--       <button class="button is-primary" @click="save_table_changes">Save</button>
-      <button class="button is-warning" @click="cancel_edits">Cancel</button> -->
-
+      <button class="button is-primary" @click="save_table_changes">Save</button>
+      <button class="button is-warning" @click="cancel_edits">Cancel</button>
       </div>
       <div class="block" v-else>
         
@@ -34,13 +29,12 @@
         <a class="button" href="[[=URL('archive', planner['id'])]]">
           ARCHIVE
         </a>
-      </div>
         [[else:]]
         <a class="button" href="[[=URL('unarchive', planner['id'])]]">
           UNARCHIVE
         </a>
         [[pass]]
-      
+      </div>
     </div>
   </div>
   
@@ -171,8 +165,9 @@
               <tr v-for="r in rows_i">
                 <td v-for="fn in ['name', 'email', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']">
                   <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
-                    
+<!-- Active class bind to hasError a css to chec is is_error is set true-->                    
                     <input type="text" class="input" v-model="r[fn]"
+                          
                           :class="{'is-focused': r._state[fn] === 'edit',
                                   'is-static': r._state[fn] === 'clean'}"
                           :readonly="r._state[fn] === 'clean'"
@@ -180,9 +175,28 @@
                           @blur="stop_edit(rows_i, r._idx, fn)"
                     />
                   </div>
+
+<!-- Condition Vue for Error Text -->
+                  <input  v-if="r[fn]==='what'"
+                          :style="{ color: 'red', fontSize: fontSize + 'px' }"
+                          type="text" class="input" v-model="r[fn]"
+                          :class="{'is-focused': r._state[fn] === 'edit',
+                                  'is-static': r._state[fn] === 'clean'}"
+                          :readonly="r._state[fn] === 'clean'"
+                          @click="start_edit(r._idx, fn)"
+                          @blur="stop_edit(r._idx, fn)"
+                    />
+                  </div>
+
                 </td>
+                <td><a  href="edit_classes.html" class="button is-warning" v-if="edit_mode">
+                  <i class="fa fa-edit"></i></a></td>
                 <td><button  class="button is-danger" v-if="edit_mode">
+
                   <i class="fa fa-trash"></i></button></td>
+                  <!-- Uncomment to see if parameter is_error is showing -->
+                  <!-- <td>
+                    <i :class="{ hasError: r.is_error }"> {{ r.is_error }}</i></td> -->
               </tr>
               </table>
               <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
@@ -206,6 +220,9 @@
   let add_class_url = "[[=XML(add_class_url)]]";
   let delete_class_url = "[[=XML(delete_class_url)]]";
   let edit_class_url = "[[=XML(edit_class_url)]]";
+  let edit_classes_url = "[[=XML(edit_classes_url)]]";
+  let edit_instructor_url = "[[=XML(edit_instructor_url)]]";
+  let update_tables_url = "[[=XML(update_tables_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]
