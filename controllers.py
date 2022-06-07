@@ -60,6 +60,37 @@ def index():
         user_name = perm[0]["name"]
         user_perm = perm[0]["permission"]
         user_true_perm = perm[0]["true_permission"]
+    if user_true_perm == "admin" or user_true_perm == "manager":
+        view_all = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+        user_assignment = db(db.instructors.email == get_user_email()).select().as_list()
+        all_assignment = []
+        print(view_all)
+        if view_all == 'True':
+            all_assignment = db(db.instructors).select("planner_id").as_list()
+        else:
+            all_assignment = db(db.instructors.email ==  get_user_email()).select("planner_id").as_list()
+        asgn_list = []
+        for i in all_assignment:
+            asgn_list.append(int(i['_extra']['planner_id']))
+        asgn_list = list(set(asgn_list))
+        print(asgn_list)
+        planners = db(db.planners.id).select().as_list()
+        active_all = []
+        inactive_all = []
+        for i in planners:
+            if i['id'] in asgn_list:
+                if i['status'] == 'True':
+                    active_all.append(i)
+                else:
+                    inactive_all.append(i)
+
+        print(active_all, inactive_all)
+    else:
+        view_all = False
+        active_all = []
+        inactive_all=[]
+        user_assignment = []
+        all_assignment = []
 
     return dict(
         # This is the signed URL for the callback.
