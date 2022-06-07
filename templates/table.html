@@ -167,7 +167,7 @@
                   <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
 <!-- Active class bind to hasError a css to chec is is_error is set true-->                    
                     <input type="text" class="input" v-model="r[fn]"
-                          :class="{ hasError: r.is_error }"
+                          
                           :class="{'is-focused': r._state[fn] === 'edit',
                                   'is-static': r._state[fn] === 'clean'}"
                           :readonly="r._state[fn] === 'clean'"
@@ -192,8 +192,6 @@
                 <td><a  href="edit_classes.html" class="button is-warning" v-if="edit_mode">
                   <i class="fa fa-edit"></i></a></td>
                 <td><button  class="button is-danger" v-if="edit_mode">
-
-                  <i class="fa fa-trash"></i></button></td>
 
                   <i class="fa fa-trash"></i></button></td>
                   <!-- Uncomment to see if parameter is_error is showing -->
