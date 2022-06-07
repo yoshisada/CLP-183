@@ -20,11 +20,6 @@ let init = (app) => {
     };
 
 
-<<<<<<< Updated upstream
-    // This contains all the methods.
-    app.methods = {
-        // Complete as you see fit.
-=======
     app.delete_class = function (row_idx) {
         let id = app.vue.rows[row_idx].id;
         axios.get(delete_class_url, { params: { id: id } }).then(function (response) {
@@ -156,7 +151,6 @@ let init = (app) => {
         cancel_edit: app.cancel_edit,
         cancel_edits: app.cancel_edits
         //set_error: app.set_error,
->>>>>>> Stashed changes
     };
 
     // This creates the Vue instance.
