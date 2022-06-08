@@ -578,7 +578,7 @@ def update_tables(planner_id, changes_list):
             #         # print('ID: ', classes[-1]['id'])
             #         db((db.classes.class_name == new_class) & (db.classes.id == new_id)).update(**{change['key']: instructor_name})
     # redirect(URL('table'))
-    redirect(URL('table', planner_id))
+    redirect(URL('table', planner_id, signer=url_signer))
     time.sleep(1)
     
 

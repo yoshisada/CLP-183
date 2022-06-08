@@ -288,6 +288,7 @@ let init = (app) => {
 
         // Exit Edit Mode
         app.toggle_edit_mode();
+        location.reload();
     };
 
     app.update_table = function(table_view) {
@@ -316,7 +317,16 @@ let init = (app) => {
                 changes_list: table_changes
             }).then(function (result) {
                 // putting the loop here doesnt work
+                
             });
+            // axios.get(load_classes_url).then(function (response) {
+            //     app.vue.rows = app.decorate(app.enumerate(response.data.rows));
+            // });
+    
+            // axios.get(load_instructors_url).then(function (response) {
+            //     app.vue.rows_i = app.decorate(app.enumerate(response.data.rows));
+            //     console.log('instructors',app.vue.rows_i)
+            // });
             // update vue
             for (const row_idx in table_changes) {
                 // table[row_idx][table_changes[row_idx]] = table_changes[row];
