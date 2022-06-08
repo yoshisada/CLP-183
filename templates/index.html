@@ -26,14 +26,14 @@
         justify-content: center;
       "
     >
-      <div style="margin: 10px">
+      <!-- <div style="margin: 10px">
         <a class="button is-large is-info" href="[[=URL('auth/register')]]"
           >Sign up</a
         >
-      </div>
+      </div> -->
       <div style="margin: 10px">
-        <a class="button is-large is-success" href="[[=URL('auth/login')]]"
-          >Log in</a
+        <a class="button is-large is-success" href="[[=URL('auth/plugin/oauth2google/login', vars=dict(next=URL('index')))]]"
+          >Sign in / Sign up</a
         >
       </div>
     </div>
