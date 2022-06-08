@@ -78,25 +78,25 @@
               </a>
             </li>
             <li>
-              <a href="[[=URL('change_perm', 'manager')]]">
+              <a href="[[=URL('change_perm', 'manager', signer=url_signer)]]">
                 
                 <span>Manager</span>
               </a>
             </li>
             <li>
-              <a href="[[=URL('change_perm', 'instructor')]]">
+              <a href="[[=URL('change_perm', 'instructor', signer=url_signer)]]">
                 
                 <span>Instructor</span>
               </a>
             </li>
           </ul>
-          <a class="button is-link" href="[[=URL('add_admin')]]">Add Admin</a>
+          <a class="button is-link" href="[[=URL('add_admin', signer=url_signer)]]">Add Admin</a>
         </div>
         [[pass]]
           <div style="margin: 5% 0%;">
             <div style="display: flex; justify-content: space-between; margin-top: 5%;"> 
               <div class="title is-4" style="margin-bottom: 2%;">Current Planners</div> 
-              <a class="button is-success" href="[[=URL('add_table')]]">Add New</a>
+              <a class="button is-success" href="[[=URL('add_table', signer=url_signer)]]">Add New</a>
             </div>
             <hr class="rounded" style="margin: 0px;">
             <div style="display: flex;">
@@ -126,7 +126,7 @@
               <hr class="rounded" style="margin: 0px;">
               <div style="display: flex;">
                 [[for table in inactive_tables:]]
-                <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                <a class="planner__tiles" href="[[=URL('table', table['id'], signer=url_signer)]]">
                     <div class="title is-4">[[=table["name"]]]</div>
                     <div class="subtitle is-6" style="
                     display: flex;
@@ -154,18 +154,18 @@
             <div class="tabs is-toggle">
               <ul>
                 <li >
-                  <a href="[[=URL('change_perm','admin')]]">
+                  <a href="[[=URL('change_perm','admin', signer=url_signer)]]">
                     <span>Admin</span>
                   </a>
                 </li>
                 <li class="is-active">
-                  <a href="[[=URL('change_perm','manager')]]">
+                  <a href="[[=URL('change_perm','manager', signer=url_signer)]]">
                     
                     <span>Manager</span>
                   </a>
                 </li>
                 <li>
-                  <a href="[[=URL('change_perm','instructor')]]">
+                  <a href="[[=URL('change_perm','instructor', signer=url_signer)]]">
                     
                     <span>Instructor</span>
                   </a>
