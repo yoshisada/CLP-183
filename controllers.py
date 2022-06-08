@@ -61,6 +61,12 @@ def index():
         user_name = perm[0]["name"]
         user_perm = perm[0]["permission"]
         user_true_perm = perm[0]["true_permission"]
+    else:
+        db.admin.insert(name=get_user_name(), email=get_user_email(), permission = "manager", true_permission = "manager")
+        perm = db(db.admin.email == get_user_email()).select().as_list()
+        user_name = perm[0]["name"]
+        user_perm = perm[0]["permission"]
+        user_true_perm = perm[0]["true_permission"]
     if user_true_perm == "admin" or user_true_perm == "manager":
         view_all = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
         user_assignment = db(db.instructors.email == get_user_email()).select().as_list()
