@@ -169,37 +169,10 @@ def add_admin():
     form = Form(db.planners, deletable=False, formstyle=FormStyleBulma)
     # FormStyleBulma.widgets['Populate_with_default_class_data']=RadioWidget()
     # FormStyleBulma.widgets['Populate_with_default_instructor_data']=RadioWidget()
-    form = Form([Field('Table_Name', requires=IS_NOT_EMPTY()), 
-        Field('Populate_with_default_class_data', requires=IS_IN_SET(['Yes','No'])),
-        Field('Populate_with_default_instructor_data', requires=IS_IN_SET(['Yes','No']))], csrf_session=session, formstyle=FormStyleBulma)
+    form = Form([Field('User_Email', requires=IS_NOT_EMPTY())], csrf_session=session, formstyle=FormStyleBulma)
     if form.accepted:
         # The update already happened!
-        
-        if form.vars['Populate_with_default_class_data'] == 'Yes':
-            planner_id = db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = len(courses), instruct_num = 100)
-            for course in courses:
-                print(course)
-                db.classes.insert(class_name = course['class_name'], 
-                    class_type = course['class_name'].split(" ")[0], 
-                    class_num = course['class_name'].split(" ")[1],
-                    class_sub = course['class_subtitle'], 
-                    class_desc = course['class_description'], 
-                    href = course['href'],
-                    default_inst = course['class_instructor'].split(", "),
-                    default_quarters = course['class_quarters'].split(", "),
-                    planner_id = planner_id
-                    )
-        else:
-            db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = 0, instruct_num = 0)
-
-
-        if form.vars['Populate_with_default_instructor_data'] == 'Yes':
-            # planner_id = db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = len(courses), instruct_num = 100)
-            for course in courses:
-                # print(course)
-                db.instructors.insert(name = course['class_instructor'],
-                    planner_id = planner_id
-                    )
+        db.admin.update_or_insert(db.admin.email == form.vars['User_Email'], email = form.vars['User_Email'], true_permission = 'admin')
 
         redirect(URL('index'))
     return dict(
