@@ -99,7 +99,10 @@ def index():
         true_perm = user_true_perm,
         user_email = get_user_email(),
         active_tables = active_tables,
-        inactive_tables = inactive_tables
+        inactive_tables = inactive_tables,
+        active_all = active_all,
+        inactive_all = inactive_all,
+        view_all = view_all
     )
 
 @action('add_table', method=["GET","POST"])
@@ -149,16 +152,13 @@ def add_table():
         form = form
     )
 
-@action('init_table', method=["GET","POST"])
-@action.uses('init_table.html', url_signer)
-def init_table():
-    print(courses)
-    redirect(URL('add_table'))
-    return dict(
-        # This is the signed URL for the callback.
-        error = False,
-        form = form
-    )
+@action('change_view_all', method=["GET","POST"])
+@action.uses('change_view_all.html', url_signer)
+def change_view_all():
+    view_all_i = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+    db(db.admin.email == get_user_email()).update(view_all = False if view_all_i == "True" else True)
+    redirect(URL('index'))
+    return
 
 @action('change_perm/<perm>', method=["GET","POST"])
 @action.uses('change_perm.html', url_signer)
