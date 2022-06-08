@@ -320,13 +320,19 @@ let init = (app) => {
             // update vue
             for (const row_idx in table_changes) {
                 // table[row_idx][table_changes[row_idx]] = table_changes[row];
-                field = table_changes[row_idx]['key'];
-                value = table_changes[row_idx]['value'];
-                
-                // update current table/tab
-                table[row_idx]._server_vals[field] = value;
-                table[row_idx][field] = value;
+                row = table_changes[row_idx]['row'];
+                for (const field in row){
+                // table[row_idx]._server_vals[field] = value;
+                // table[row_idx][field] = value;
                 table[row_idx]._state[field] = 'clean';
+                }
+                console.log('row',row)
+                // value = table_changes[row_idx]['value'];
+                
+                // // update current table/tab
+                // table[row_idx]._server_vals[field] = value;
+                // table[row_idx][field] = value;
+                // table[row_idx]._state[field] = 'clean';
             }
         }
     }

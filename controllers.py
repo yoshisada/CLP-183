@@ -394,24 +394,15 @@ def update_tables(planner_id, changes_list):
                 class_name = change['row']['class_name'],
                 class_type = change['row']['class_type'],
                 quarter_1 = change['row']['quarter_1'],
-
-
                 quarter_2 = change['row']['quarter_2'],
-
-
                 quarter_3 = change['row']['quarter_3'],
-
-
                 summer_1 = change['row']['summer_1'],
-
-
                 summer_2 = change['row']['summer_2'],
+                course_time_sections = change['row']['course_time_sections'],
+                actual_times = change['row']['actual_times'],
 
                 )
-            new_db = db((db.classes.id == change['row']['id']) & (db.classes.planner_id == planner_id)).select().as_list()[0]
-            
-            new_changes = {}
-            classes_changed = []
+            new_db = db((db.classes.id == change['row']['id']) & (db.classes.planner_id == planner_id)).select().as_list()[0]           
             for quarter in ['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']:
                 if prev_db[quarter] == new_db[quarter]:
                     continue
@@ -423,8 +414,6 @@ def update_tables(planner_id, changes_list):
                 class_query = class_query[0]
                 print(class_query,  new_db[quarter])
                 if quarter == 'quarter_1':
-                    
-                        
                     db(db.instructors.id == class_query['id']).update(quarter_1_1 = new_db['class_name'])
                     class_query = db((db.instructors.name == new_db[quarter])& (db.instructors.planner_id == planner_id)).select().as_list()[0]
                     update_str = class_query[quarter+'_1']
