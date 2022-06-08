@@ -249,6 +249,7 @@ def table(table_id = None):
 
     return dict(
         # This is the signed URL for the callback.
+        url_signer = url_signer,
         planner = planner,
         # instructors = instructors,
         load_classes_url = URL('load_classes', table_id, signer=url_signer),
