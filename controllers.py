@@ -213,7 +213,15 @@ def change_perm(perm = "instructor"):
 @action.uses('table.html', url_signer.verify())
 def table(table_id = None):
     planner = db(db.planners.id == table_id).select().as_list()[0]
-
+    ac_classes = db(db.classes.planner_id == table_id).select('class_name').as_list()
+    ac_instructors = db(db.instructors.planner_id == table_id).select('name').as_list()
+    ac_classes_fix = []
+    ac_instructors_fix = []
+    for i in ac_classes: # probably should use map for this
+        ac_classes_fix.append(i['_extra']['class_name'])
+    for i in ac_instructors: # probably should use map for this
+        ac_instructors_fix.append(i['_extra']['name'])
+    print('ac_classes', ac_classes_fix, ac_instructors_fix)
     # instructors = db(db.users.name == get_user_name()).select().as_list()
     # for instructor in instructors:
     #     instructor['classes'] = ''
