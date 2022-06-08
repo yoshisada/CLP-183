@@ -240,6 +240,7 @@ def change_perm(perm = "instructor"):
 @action.uses('table.html', url_signer.verify())
 def table(table_id = None):
     planner = db(db.planners.id == table_id).select().as_list()[0]
+    active_tables = db(db.planners.status == True).select().as_list()
 
     # instructors = db(db.users.name == get_user_name()).select().as_list()
     # for instructor in instructors:
@@ -259,6 +260,7 @@ def table(table_id = None):
         edit_classes_url = URL('edit_classes', signer=url_signer),
         edit_instructor_url = URL('edit_instructor', signer=url_signer),
         update_tables_url = URL('update_tables', table_id, None, signer=url_signer),
+        active_tables = active_tables
         # archive_url = URL('archive', table_id, signer=url_signer)
     )
 
