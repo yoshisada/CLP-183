@@ -213,6 +213,7 @@ def change_perm(perm = "instructor"):
 @action.uses('table.html', url_signer.verify())
 def table(table_id = None):
     planner = db(db.planners.id == table_id).select().as_list()[0]
+
     ac_classes = db(db.classes.planner_id == table_id).select('class_name').as_list()
     ac_instructors = db(db.instructors.planner_id == table_id).select('name').as_list()
     ac_classes_fix = []
@@ -222,13 +223,13 @@ def table(table_id = None):
     for i in ac_instructors: # probably should use map for this
         ac_instructors_fix.append(i['_extra']['name'])
     print('ac_classes', ac_classes_fix, ac_instructors_fix)
-    # instructors = db(db.users.name == get_user_name()).select().as_list()
-    # for instructor in instructors:
-    #     instructor['classes'] = ''
-    #     s = db(db.classes.contact_id == instructor['id']).select()
+
+    active_tables = db(db.planners.status == True).select().as_list()
+
 
     return dict(
         # This is the signed URL for the callback.
+        url_signer = url_signer,
         planner = planner,
         # instructors = instructors,
         load_classes_url = URL('load_classes', table_id, signer=url_signer),
@@ -240,6 +241,7 @@ def table(table_id = None):
         edit_classes_url = URL('edit_classes', signer=url_signer),
         edit_instructor_url = URL('edit_instructor', signer=url_signer),
         update_tables_url = URL('update_tables', table_id, None, signer=url_signer),
+        active_tables = active_tables
         # archive_url = URL('archive', table_id, signer=url_signer)
     )
 
