@@ -114,7 +114,7 @@ def index():
     )
 
 @action('add_table', method=["GET","POST"])
-@action.uses('add_table.html', url_signer)
+@action.uses('add_table.html', url_signer.verify())
 def add_table():
     if len(db(db.admin.email == get_user_email()).select().as_list()) == 0:
         return dict(error = True)
@@ -162,7 +162,7 @@ def add_table():
 
 
 @action('add_admin', method=["GET","POST"])
-@action.uses('add_admin.html', url_signer)
+@action.uses('add_admin.html', url_signer.verify())
 def add_admin():
     if len(db(db.admin.email == get_user_email()).select().as_list()) == 0:
         return dict(error = True)
@@ -195,7 +195,7 @@ def assignments(planner_id, perm):
     return dict(assignments = assignments)
 
 @action('change_view_all', method=["GET","POST"])
-@action.uses('change_view_all.html', url_signer)
+@action.uses('change_view_all.html', url_signer.verify())
 def change_view_all():
     view_all_i = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
     db(db.admin.email == get_user_email()).update(view_all = False if view_all_i == "True" else True)
@@ -203,7 +203,7 @@ def change_view_all():
     return
 
 @action('change_perm/<perm>', method=["GET","POST"])
-@action.uses('change_perm.html', url_signer)
+@action.uses('change_perm.html', url_signer.verify())
 def change_perm(perm = "instructor"):
     db(db.admin.email == get_user_email()).update(permission = perm)
     redirect(URL('index'))
@@ -231,7 +231,8 @@ def table(table_id = None):
         edit_class_url = URL('edit_class', signer=url_signer),
         edit_classes_url = URL('edit_classes', signer=url_signer),
         edit_instructor_url = URL('edit_instructor', signer=url_signer),
-        update_tables_url = URL('update_tables', table_id, None, signer=url_signer)
+        update_tables_url = URL('update_tables', table_id, None, signer=url_signer),
+        # archive_url = URL('archive', table_id, signer=url_signer)
     )
 
 @action('archive/<table_id:int>')
