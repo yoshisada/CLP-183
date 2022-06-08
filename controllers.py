@@ -268,7 +268,7 @@ def archive(table_id = None):
     redirect(URL('index'))
 
 @action('unarchive/<table_id:int>')
-@action.uses('unarchive.html', url_signer)
+@action.uses('unarchive.html', url_signer.verify())
 def unarchive(table_id = None):
     db(db.planners.id == table_id).update(status = True)
     redirect(URL('index'))
