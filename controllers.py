@@ -109,12 +109,61 @@ def index():
         inactive_tables = inactive_tables,
         active_all = active_all,
         inactive_all = inactive_all,
-        view_all = view_all
+        view_all = view_all,
+        url_signer = url_signer
     )
 
 @action('add_table', method=["GET","POST"])
 @action.uses('add_table.html', url_signer)
 def add_table():
+    if len(db(db.admin.email == get_user_email()).select().as_list()) == 0:
+        return dict(error = True)
+    form = Form(db.planners, deletable=False, formstyle=FormStyleBulma)
+    # FormStyleBulma.widgets['Populate_with_default_class_data']=RadioWidget()
+    # FormStyleBulma.widgets['Populate_with_default_instructor_data']=RadioWidget()
+    form = Form([Field('Table_Name', requires=IS_NOT_EMPTY()), 
+        Field('Populate_with_default_class_data', requires=IS_IN_SET(['Yes','No'])),
+        Field('Populate_with_default_instructor_data', requires=IS_IN_SET(['Yes','No']))], csrf_session=session, formstyle=FormStyleBulma)
+    if form.accepted:
+        # The update already happened!
+        
+        if form.vars['Populate_with_default_class_data'] == 'Yes':
+            planner_id = db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = len(courses), instruct_num = 100)
+            for course in courses:
+                print(course)
+                db.classes.insert(class_name = course['class_name'], 
+                    class_type = course['class_name'].split(" ")[0], 
+                    class_num = course['class_name'].split(" ")[1],
+                    class_sub = course['class_subtitle'], 
+                    class_desc = course['class_description'], 
+                    href = course['href'],
+                    default_inst = course['class_instructor'].split(", "),
+                    default_quarters = course['class_quarters'].split(", "),
+                    planner_id = planner_id
+                    )
+        else:
+            db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = 0, instruct_num = 0)
+
+
+        if form.vars['Populate_with_default_instructor_data'] == 'Yes':
+            # planner_id = db.planners.insert(name = form.vars['Table_Name'], status = True, class_num = len(courses), instruct_num = 100)
+            for course in courses:
+                # print(course)
+                db.instructors.insert(name = course['class_instructor'],
+                    planner_id = planner_id
+                    )
+
+        redirect(URL('index'))
+    return dict(
+        # This is the signed URL for the callback.
+        error = False,
+        form = form
+    )
+
+
+@action('add_admin', method=["GET","POST"])
+@action.uses('add_admin.html', url_signer)
+def add_admin():
     if len(db(db.admin.email == get_user_email()).select().as_list()) == 0:
         return dict(error = True)
     form = Form(db.planners, deletable=False, formstyle=FormStyleBulma)
@@ -188,7 +237,7 @@ def change_perm(perm = "instructor"):
     return
 
 @action('table/<table_id:int>')
-@action.uses('table.html', url_signer)
+@action.uses('table.html', url_signer.verify())
 def table(table_id = None):
     planner = db(db.planners.id == table_id).select().as_list()[0]
 
@@ -413,12 +462,40 @@ def update_tables(planner_id, changes_list):
                     db(db.instructors.id == class_query['id']).update(quarter_1 = update_str)
                 elif quarter == 'quarter_2':
                     db(db.instructors.id == class_query['id']).update(quarter_2_1 = new_db['class_name'])
+                    class_query = db((db.instructors.name == new_db[quarter])& (db.instructors.planner_id == planner_id)).select().as_list()[0]
+                    update_str = class_query[quarter+'_1']
+                    for i in range(2,7):
+                        st = class_query[quarter+'_'+str(i)]
+                        if st is not None and st is not "":
+                            update_str+=', '+st
+                    db(db.instructors.id == class_query['id']).update(quarter_2 = update_str)
                 elif quarter == 'quarter_3':
                     db(db.instructors.id == class_query['id']).update(quarter_3_1 = new_db['class_name'])
+                    class_query = db((db.instructors.name == new_db[quarter])& (db.instructors.planner_id == planner_id)).select().as_list()[0]
+                    update_str = class_query[quarter+'_1']
+                    for i in range(2,7):
+                        st = class_query[quarter+'_'+str(i)]
+                        if st is not None and st is not "":
+                            update_str+=', '+st
+                    db(db.instructors.id == class_query['id']).update(quarter_3 = update_str)
                 elif quarter == 'summer_1':
                     db(db.instructors.id == class_query['id']).update(summer_1_1 = new_db['class_name'])
+                    class_query = db((db.instructors.name == new_db[quarter])& (db.instructors.planner_id == planner_id)).select().as_list()[0]
+                    update_str = class_query[quarter+'_1']
+                    for i in range(2,7):
+                        st = class_query[quarter+'_'+str(i)]
+                        if st is not None and st is not "":
+                            update_str+=', '+st
+                    db(db.instructors.id == class_query['id']).update(summer_1 = update_str)
                 elif quarter == 'summer_2':
                     db(db.instructors.id == class_query['id']).update(summer_2_1 = new_db['class_name'])
+                    class_query = db((db.instructors.name == new_db[quarter])& (db.instructors.planner_id == planner_id)).select().as_list()[0]
+                    update_str = class_query[quarter+'_1']
+                    for i in range(2,7):
+                        st = class_query[quarter+'_'+str(i)]
+                        if st is not None and st is not "":
+                            update_str+=', '+st
+                    db(db.instructors.id == class_query['id']).update(summer_2 = update_str)
         # CHANGE TO INSTRUCTORS TAB
         elif change['table'] == 'instr':
             # update instr
