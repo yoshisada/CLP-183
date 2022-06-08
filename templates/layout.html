@@ -31,10 +31,14 @@
     <!-- Dropdown 1 -->
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
-            Current Planner
+            My Planners
           </a>
           <div class="navbar-dropdown">
-            <a href="[[=URL('basic_grid') ]]" class="navbar-item">
+            [[for table in active_tables:]]
+            
+            <a href="[[=URL('table', table['id'], signer=url_signer)]]"><div class="navbar-item">[[=table["name"]]]</div>
+            </a>
+            <!-- <a href="[[=URL('basic_grid') ]]" class="navbar-item">
               1
             </a>
             <a href="[[=URL('columns') ]]" class="navbar-item">
@@ -48,7 +52,8 @@
             </a>
             <a href="[[=URL('action_buttons') ]]" class="navbar-item">
               5
-            </a>
+            </a> -->
+            [[pass]]
           </div>
         </div>
   <!-- Dropdown 2 -->
