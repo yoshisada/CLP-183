@@ -18,6 +18,9 @@
     <div>
       [[if planner['status'] == "True":]]
       <div class="block" v-if="edit_mode">
+        <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
+          <i class="fa fa-plus fa-fw"></i> Add Instructor / Class
+        </button>
         <button class="button is-primary" @click="save_table_changes">Save</button>
         <button class="button is-warning" @click="cancel_edits">Cancel</button>
       </div>
@@ -114,9 +117,7 @@
                   <i class="fa fa-trash"></i></button></td>
               </tr>
             </table>
-            <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
-              <i class="fa fa-plus fa-fw"></i> Add Class
-            </button>
+            
           </section>
           </div>
         <section class="tab-content">
@@ -211,7 +212,7 @@
                       <div>Class 4: <input type="text" class="input" v-model="r[fn+'_4']"/></div>
                       <div>Class 5: <input type="text" class="input" v-model="r[fn+'_5']"/></div>
                       <div>Class 5: <input type="text" class="input" v-model="r[fn+'_6']"/></div>
-                      <div style="display: flex;">
+                      
                       <div style="margin-top: 10px;"><a class="button is-success" @click="stop_edit(rows_i, r._idx, fn)">Save</a></div>
                       <div style="margin-top: 10px;"><a class="button is-danger" @click="r._state[fn] = 'clean'; r[fn+'_1'] = ''; r[fn+'_2'] = ''; r[fn+'_3'] = ''; r[fn+'_4'] = ''; r[fn+'_5'] = ''; r[fn+'_6'] = '';">Cancel</a></div>
                     </div>
