@@ -180,7 +180,7 @@
               <ul>
                 [[if view_all == "False":]]
                 <li >
-                  <a href="[[=URL('change_view_all')]]">
+                  <a href="[[=URL('change_view_all', signer=url_signer)]]">
                     <span>All Assignments</span>
                   </a>
                 </li>
@@ -197,7 +197,7 @@
                   </a>
                 </li>
                 <li>
-                  <a href="[[=URL('change_view_all')]]">
+                  <a href="[[=URL('change_view_all', signer=url_signer)]]">
                     
                     <span>Your Assignments</span>
                   </a>
@@ -267,18 +267,18 @@
         Change Permissions to: <div class="tabs is-toggle">
           <ul>
             <li>
-              <a href="[[=URL('change_perm','admin')]]">
+              <a href="[[=URL('change_perm','admin', signer=url_signer)]]">
                 <span>Admin</span>
               </a>
             </li>
             <li>
-              <a href="[[=URL('change_perm','manager')]]">
+              <a href="[[=URL('change_perm','manager', signer=url_signer)]]">
                 
                 <span>Manager</span>
               </a>
             </li>
             <li class="is-active">
-              <a href="[[=URL('change_perm','instructor')]]">
+              <a href="[[=URL('change_perm','instructor', signer=url_signer)]]">
                 
                 <span>Instructor</span>
               </a>

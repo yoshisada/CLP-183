@@ -222,7 +222,7 @@ def assignments(planner_id, perm):
     return dict(assignments = assignments)
 
 @action('change_view_all', method=["GET","POST"])
-@action.uses('change_view_all.html', url_signer)
+@action.uses('change_view_all.html', url_signer.verify())
 def change_view_all():
     view_all_i = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
     db(db.admin.email == get_user_email()).update(view_all = False if view_all_i == "True" else True)
@@ -262,7 +262,7 @@ def table(table_id = None):
     )
 
 @action('archive/<table_id:int>')
-@action.uses('archive.html', url_signer)
+@action.uses('archive.html', url_signer.verify())
 def archive(table_id = None):
     db(db.planners.id == table_id).update(status = False)
     redirect(URL('index'))
