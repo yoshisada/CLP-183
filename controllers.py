@@ -314,31 +314,6 @@ def edit_class():
     time.sleep(1)
     return "ok"
 
-@action('edit_classes')
-@action.uses('edit_classes.html', url_signer)
-def edit_classes():
-    pass
-    # instructor = db(db.instructors.id == instructor_id).select().as_list()
-    
-    # return dict(
-    #     name = name,
-    #     classes = classes
-    # )
-
-@action('edit_instructor', method="POST")
-@action.uses(url_signer.verify(), db)
-def edit_instructor():
-    # update class table
-    # id = request.json.get('id')
-    # field = request.json.get('field')  # quarter
-    # value = request.json.get('value')  # class name
-    # db(db.instructors.id == id).update(**{field: value})
-
-    # print('request: {}, {}'.format(field, value))
-
-    # time.sleep(1)
-    return "ok"
-
 @action('delete_class')
 @action.uses(url_signer.verify(), db)
 def delete_class():
@@ -361,35 +336,9 @@ def update_tables(planner_id, changes_list):
         if change['table'] == 'classes':
             # update class table
             print("in classes")
-            # db(db.classes.id == change['id']).update(**{change['key']: change['value']})
-            
-            # # cross-reference and update instr table
-            # instructor_name = db(db.classes.id == change['id']).select().as_list()[0][change['key']]
-            # # need previous entry
-            # instructor_entry = db(db.instructors.id == change['value']).select().as_list()
-            
-            # instructor_prev = db('CSE 3' in db.instructors[change['key']]).select().as_list()
-            # print("HUH",instructor_entry, change, instructor_prev)
-            # quarter = instructor_entry[0][change['key']]
-            # class_name = db(db.classes.id == change['id']).select().as_list()[0]['class_name']
-            # if quarter is None:
-            #     db(db.instructors.name == change['value']).update(**{change['key']: class_name})
-            # else:
-            #     class_list = quarter.split(', ')
-            #     if class_name not in class_list:
-            #         class_list.append(class_name)
-            #         class_list = '%s' % ', '.join(map(str, class_list))
-            #         db(db.instructors.name == change['value']).update(**{change['key']: class_list})
 
             class_entry = db((db.classes.id == change['row']['id']) & (db.classes.planner_id == planner_id)).select().as_list()
-            instructor_name = class_entry[0]['class_name']
-            # class_list = instructor_entry[0][change['key']]
-            # if class_list not None:
-            #     class_list = class_list.split(', ')  # current classes
-
-            # new_class_list = change['value'].split(', ')
-            # new_class_entry = '%s' % ', '.join(map(str, new_class_list))
-            # print(change['key'], new_class_list)
+            
             prev_db = db((db.classes.id == change['row']['id']) & (db.classes.planner_id == planner_id)).select().as_list()[0]
             db((db.classes.id == change['row']['id'])& (db.classes.planner_id == planner_id)).update(
                 class_name = change['row']['class_name'],
@@ -463,14 +412,7 @@ def update_tables(planner_id, changes_list):
         elif change['table'] == 'instr':
             # update instr
             instructor_entry = db((db.instructors.id == change['row']['id']) & (db.instructors.planner_id == planner_id)).select().as_list()
-            instructor_name = instructor_entry[0]['name']
-            # class_list = instructor_entry[0][change['key']]
-            # if class_list not None:
-            #     class_list = class_list.split(', ')  # current classes
 
-            # new_class_list = change['value'].split(', ')
-            # new_class_entry = '%s' % ', '.join(map(str, new_class_list))
-            # print(change['key'], new_class_list)
             prev_db = db((db.instructors.id == change['row']['id']) & (db.instructors.planner_id == planner_id)).select().as_list()[0]
             db((db.instructors.id == change['row']['id'])& (db.instructors.planner_id == planner_id)).update(name = change['row']['name'],
                 email = change['row']['email'],
@@ -540,45 +482,6 @@ def update_tables(planner_id, changes_list):
                             db(db.classes.id == class_query['id']).update(summer_1 = new_db['name'])
                         elif quarter == 'summer_2':
                             db(db.classes.id == class_query['id']).update(summer_2 = new_db['name'])
-                        # if class_query['id'] in new_changes:
-                        #     new_changes[class_query['id']]['row'][quarter] = new_db['name']
-                        #     print(quarter, prev_db['name'])
-                        # else:
-                        #     new_changes[class_query['id']] = {'table': 'classes', 'row': class_query}
-                        #     new_changes[class_query['id']]['row'][quarter] = new_db['name']
-                            # print(quarter, prev_db['name'])
-            # if len(new_changes) != 0:
-                
-            #     redirect(URL('update_tables', planner_id, new_changes))
-            # TODO: cross-reference and classes table
-            # print('new list: {}'.format(new_class_list))
-            # for new_class in new_class_list:
-            #     # check CLASS table,
-            #     class_check = db(db.classes.class_name == new_class).select().as_list()
-            #     print(class_check)
-            #     # if no isntr listed:
-            #     if class_check[0][change['key']] is None:
-            #         # update with this instr
-            #         db(db.classes.class_name == new_class).update(**{change['key']: instructor_name})
-            #     # elif class has different instr:
-            #     elif class_check[0][change['key']] is not instructor_name:                    
-            #         # add new (duplicate) class with this instr
-            #         db.classes.insert(
-            #             class_name = new_class,
-            #             class_type = class_check[0]['class_name'].split(" ")[0], 
-            #             class_num = class_check[0]['class_name'].split(" ")[1],
-            #             class_sub = class_check[0]['class_sub'],
-            #             class_desc = class_check[0]['class_desc'],
-            #             href = class_check[0]['href'],
-            #             default_inst = class_check[0]['default_inst'].split(", "),
-            #             default_quarters = class_check[0]['default_quarters'].split(", "),
-            #             planner_id = class_check[0]['planner_id']
-            #         )
-            #         classes = db(db.classes.class_name == new_class).select().as_list()
-            #         new_id = max([class_entry['id'] for class_entry in classes])
-            #         # print('ID: ', classes[-1]['id'])
-            #         db((db.classes.class_name == new_class) & (db.classes.id == new_id)).update(**{change['key']: instructor_name})
-    # redirect(URL('table'))
     redirect(URL('table', planner_id, signer=url_signer))
     time.sleep(1)
     
