@@ -258,17 +258,18 @@ def table(table_id = None):
         edit_class_url = URL('edit_class', signer=url_signer),
         edit_classes_url = URL('edit_classes', signer=url_signer),
         edit_instructor_url = URL('edit_instructor', signer=url_signer),
-        update_tables_url = URL('update_tables', table_id, None, signer=url_signer)
+        update_tables_url = URL('update_tables', table_id, None, signer=url_signer),
+        # archive_url = URL('archive', table_id, signer=url_signer)
     )
 
 @action('archive/<table_id:int>')
-@action.uses('archive.html', url_signer.verify())
+@action.uses('archive.html', url_signer)
 def archive(table_id = None):
     db(db.planners.id == table_id).update(status = False)
     redirect(URL('index'))
 
 @action('unarchive/<table_id:int>')
-@action.uses('unarchive.html', url_signer.verify())
+@action.uses('unarchive.html', url_signer)
 def unarchive(table_id = None):
     db(db.planners.id == table_id).update(status = True)
     redirect(URL('index'))
