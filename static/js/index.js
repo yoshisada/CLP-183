@@ -265,6 +265,7 @@ let init = (app) => {
         table_op = (table_view == app.data.rows ? app.vue.rows_i : app.vue.rows);
         // func = (table_view == app.data.rows ? edit_class_url : edit_instructor_url);
         table_changes = (table_view == app.data.rows ? app.data.rows_changes : app.data.rows_i_changes);
+        
         // console.log(table_op);
 
         // for (const row_idx in table_changes) {
@@ -272,7 +273,7 @@ let init = (app) => {
         // }
         // update db only if there are changes
         if (Object.keys(table_changes).length > 0) {
-
+            console.log("table changes",table_changes[0], app.data.rows_changes)
             for (const row_idx in table_changes) {
                 // console.log('row_idx: ', row_idx, 'row: ', table_changes[row_idx]);
                 field = table_changes[row_idx]['key'];

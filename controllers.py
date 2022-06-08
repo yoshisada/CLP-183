@@ -151,6 +151,19 @@ def add_table():
         error = False,
         form = form
     )
+@action('assignments/<planner_id>/<perm>', method=["GET","POST"])
+@action.uses('assignments.html', url_signer)
+def assignments(planner_id, perm):
+    view_all = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+    assignments = []
+    
+    if view_all == 'True':
+        assignments = db((db.instructors.planner_id == planner_id)).select().as_list()
+    else:
+        assignments = db((db.instructors.planner_id == planner_id) & (db.instructors.email == get_user_email())).select().as_list()
+    print(assignments)
+
+    return dict(assignments = assignments)
 
 @action('change_view_all', method=["GET","POST"])
 @action.uses('change_view_all.html', url_signer)
@@ -317,7 +330,9 @@ def update_tables():
             
             # cross-reference and update instr table
             instructor_name = db(db.classes.id == change['id']).select().as_list()[0][change['key']]
-            instructor_entry = db(db.instructors.name == change['value']).select().as_list()
+            # need previous entry
+            instructor_entry = db(db.instructors.id == change['id']).select().as_list()
+            print("HUH",instructor_entry, change)
             quarter = instructor_entry[0][change['key']]
             class_name = db(db.classes.id == change['id']).select().as_list()[0]['class_name']
             if quarter is None:
@@ -347,7 +362,7 @@ def update_tables():
             for new_class in new_class_list:
                 # check CLASS table,
                 class_check = db(db.classes.class_name == new_class).select().as_list()
-                # print(class_check)
+                print(class_check)
                 # if no isntr listed:
                 if class_check[0][change['key']] is None:
                     # update with this instr

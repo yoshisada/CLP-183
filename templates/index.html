@@ -1,7 +1,7 @@
 [[extend 'layout.html']] [[if user_email == None:]]
 <head>
 <style>
-
+  
 </style>
 </head>
 <div
@@ -79,13 +79,13 @@
             </li>
             <li>
               <a href="[[=URL('change_perm', 'manager')]]">
-
+                
                 <span>Manager</span>
               </a>
             </li>
             <li>
               <a href="[[=URL('change_perm', 'instructor')]]">
-
+                
                 <span>Instructor</span>
               </a>
             </li>
@@ -108,13 +108,13 @@
                   white-space: pre;
                   ">Status: [[if table["status"] == "True":]]<div class = "has-text-success">Active</div>[[else:]]<div class = "has-text-danger">Inactive</div>
                     [[pass]]
-
+                    
                   </div>
                   <div>Number of Classes: [[=table["class_num"]]]</div>
                   <div>Number of instructors: [[=table["instruct_num"]]]</div>
-
-
-
+                  
+                  
+                  
                 </a>
               [[pass]]
             </div>
@@ -133,20 +133,20 @@
                     white-space: pre;
                     ">Status: [[if table["status"] == "True":]]<div class = "has-text-success">Active</div>[[else:]]<div class = "has-text-danger">Inactive</div>
                       [[pass]]
-
+                      
                     </div>
                     <div>Number of Classes: [[=table["class_num"]]]</div>
                     <div>Number of instructors: [[=table["instruct_num"]]]</div>
-
-
-
+                    
+                    
+                    
                   </a>
                 [[pass]]
               </div>
           </div>
           </div>
         [[elif user_perm == "manager":]]
-
+        
         <div style="display: flex; justify-content: space-between;">
         <div>
           [[if true_perm == "admin":]]
@@ -159,13 +159,13 @@
                 </li>
                 <li class="is-active">
                   <a href="[[=URL('change_perm','manager')]]">
-
+                    
                     <span>Manager</span>
                   </a>
                 </li>
                 <li>
                   <a href="[[=URL('change_perm','instructor')]]">
-
+                    
                     <span>Instructor</span>
                   </a>
                 </li>
@@ -185,7 +185,7 @@
                 </li>
                 <li class="is-active">
                   <a>
-
+                    
                     <span>Your Assignments</span>
                   </a>
                 </li>
@@ -197,7 +197,7 @@
                 </li>
                 <li>
                   <a href="[[=URL('change_view_all')]]">
-
+                    
                     <span>Your Assignments</span>
                   </a>
                 </li>
@@ -206,9 +206,9 @@
             </div>
           </div>
         </div>  
+          
 
-
-
+          
           <div style="margin: 5% 0%;">
             <div style="display: flex; justify-content: space-between; margin-top: 5%;"> 
               <div class="title is-4" style="margin-bottom: 2%;">Current Assignments</div> 
@@ -216,7 +216,7 @@
             <hr class="rounded" style="margin: 0px;">
             <div style="display: flex;">
               [[for table in active_all:]]
-                <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                <a class="planner__tiles" href="[[=URL('assignments', table['id'], user_perm)]]">
                   <div class="title is-4">[[=table["name"]]]</div>
                   <div class="subtitle is-6" style="
                   display: flex;
@@ -224,13 +224,13 @@
                   white-space: pre;
                   ">Status: [[if table["status"] == "True":]]<div class = "has-text-success">Active</div>[[else:]]<div class = "has-text-danger">Inactive</div>
                     [[pass]]
-
+                    
                   </div>
                   <div>Number of Classes: [[=table["class_num"]]]</div>
                   <div>Number of instructors: [[=table["instruct_num"]]]</div>
-
-
-
+                  
+                  
+                  
                 </a>
               [[pass]]
             </div>
@@ -241,7 +241,7 @@
               <hr class="rounded" style="margin: 0px;">
               <div style="display: flex;">
                 [[for table in inactive_all:]]
-                  <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                  <a class="planner__tiles" href="[[=URL('assignments', table['id'], user_perm)]]">
                     <div class="title is-4">[[=table["name"]]]</div>
                     <div class="subtitle is-6" style="
                     display: flex;
@@ -249,13 +249,13 @@
                     white-space: pre;
                     ">Status: [[if table["status"] == "True":]]<div class = "has-text-success">Active</div>[[else:]]<div class = "has-text-danger">Inactive</div>
                       [[pass]]
-
+                      
                     </div>
                     <div>Number of Classes: [[=table["class_num"]]]</div>
                     <div>Number of instructors: [[=table["instruct_num"]]]</div>
-
-
-
+                    
+                    
+                    
                   </a>
                 [[pass]]
               </div>
@@ -272,13 +272,13 @@
             </li>
             <li>
               <a href="[[=URL('change_perm','manager')]]">
-
+                
                 <span>Manager</span>
               </a>
             </li>
             <li class="is-active">
               <a href="[[=URL('change_perm','instructor')]]">
-
+                
                 <span>Instructor</span>
               </a>
             </li>
@@ -292,7 +292,7 @@
           <hr class="rounded" style="margin: 0px;">
           <div style="display: flex;">
             [[for table in active_all:]]
-              <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+              <a class="planner__tiles" href="[[=URL('assignments', table['id'], user_perm)]]">
                 <div class="title is-4">[[=table["name"]]]</div>
                 <div class="subtitle is-6" style="
                 display: flex;
@@ -300,13 +300,13 @@
                 white-space: pre;
                 ">Status: [[if table["status"] == "True":]]<div class = "has-text-success">Active</div>[[else:]]<div class = "has-text-danger">Inactive</div>
                   [[pass]]
-
+                  
                 </div>
                 <div>Number of Classes: [[=table["class_num"]]]</div>
                 <div>Number of instructors: [[=table["instruct_num"]]]</div>
-
-
-
+                
+                
+                
               </a>
             [[pass]]
           </div>
@@ -317,7 +317,7 @@
             <hr class="rounded" style="margin: 0px;">
             <div style="display: flex;">
               [[for table in inactive_all:]]
-                <a class="planner__tiles" href="[[=URL('table', table['id'])]]">
+                <a class="planner__tiles" href="[[=URL('assignments', table['id'], user_perm)]]">
                   <div class="title is-4">[[=table["name"]]]</div>
                   <div class="subtitle is-6" style="
                   display: flex;
@@ -325,13 +325,13 @@
                   white-space: pre;
                   ">Status: [[if table["status"] == "True":]]<div class = "has-text-success">Active</div>[[else:]]<div class = "has-text-danger">Inactive</div>
                     [[pass]]
-
+                    
                   </div>
                   <div>Number of Classes: [[=table["class_num"]]]</div>
                   <div>Number of instructors: [[=table["instruct_num"]]]</div>
-
-
-
+                  
+                  
+                  
                 </a>
               [[pass]]
             </div>
@@ -347,4 +347,3 @@
   </div>
 </div>
 [[pass]]
-
