@@ -25,6 +25,7 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
+from sqlite3 import Row
 from unicodedata import name
 from py4web import action, request, abort, redirect, URL, Field
 from pydal.validators import IS_NOT_EMPTY, IS_IN_SET
@@ -99,7 +100,10 @@ def index():
         true_perm = user_true_perm,
         user_email = get_user_email(),
         active_tables = active_tables,
-        inactive_tables = inactive_tables
+        inactive_tables = inactive_tables,
+        active_all = active_all,
+        inactive_all = inactive_all,
+        view_all = view_all
     )
 
 @action('add_table', method=["GET","POST"])
@@ -148,17 +152,27 @@ def add_table():
         error = False,
         form = form
     )
+@action('assignments/<planner_id>/<perm>', method=["GET","POST"])
+@action.uses('assignments.html', url_signer)
+def assignments(planner_id, perm):
+    view_all = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+    assignments = []
+    
+    if view_all == 'True':
+        assignments = db((db.instructors.planner_id == planner_id)).select().as_list()
+    else:
+        assignments = db((db.instructors.planner_id == planner_id) & (db.instructors.email == get_user_email())).select().as_list()
+    print(assignments)
 
-@action('init_table', method=["GET","POST"])
-@action.uses('init_table.html', url_signer)
-def init_table():
-    print(courses)
-    redirect(URL('add_table'))
-    return dict(
-        # This is the signed URL for the callback.
-        error = False,
-        form = form
-    )
+    return dict(assignments = assignments)
+
+@action('change_view_all', method=["GET","POST"])
+@action.uses('change_view_all.html', url_signer)
+def change_view_all():
+    view_all_i = db(db.admin.email == get_user_email()).select().as_list()[0]['view_all']
+    db(db.admin.email == get_user_email()).update(view_all = False if view_all_i == "True" else True)
+    redirect(URL('index'))
+    return
 
 @action('change_perm/<perm>', method=["GET","POST"])
 @action.uses('change_perm.html', url_signer)
@@ -189,7 +203,7 @@ def table(table_id = None):
         edit_class_url = URL('edit_class', signer=url_signer),
         edit_classes_url = URL('edit_classes', signer=url_signer),
         edit_instructor_url = URL('edit_instructor', signer=url_signer),
-        update_tables_url = URL('update_tables', signer=url_signer)
+        update_tables_url = URL('update_tables', table_id, None, signer=url_signer)
     )
 
 @action('archive/<table_id:int>')
@@ -304,75 +318,224 @@ def delete_class():
     db(db.classes.id == id).delete()
     return "ok"
 
-@action('update_tables', method="POST")
+
+@action('update_tables/<planner_id:int>/<changes_list>', method=["GET","POST"])
 @action.uses(url_signer.verify(), db)
-def update_tables():
-    changes_list = request.json.get('changes_list').values()
+def update_tables(planner_id, changes_list):
+    print(changes_list)
+    if changes_list == 'None':
+        changes_list = request.json.get('changes_list').values()
     # print(changes_list)
     for change in list(changes_list):
         # CHANGE TO CLASSES TAB
+        print('HERE', change)
         if change['table'] == 'classes':
             # update class table
-            db(db.classes.id == change['id']).update(**{change['key']: change['value']})
+            print("in classes")
+            # db(db.classes.id == change['id']).update(**{change['key']: change['value']})
             
-            # cross-reference and update instr table
-            instructor_name = db(db.classes.id == change['id']).select().as_list()[0][change['key']]
-            instructor_entry = db(db.instructors.name == change['value']).select().as_list()
-            quarter = instructor_entry[0][change['key']]
-            class_name = db(db.classes.id == change['id']).select().as_list()[0]['class_name']
-            if quarter is None:
-                db(db.instructors.name == change['value']).update(**{change['key']: class_name})
-            else:
-                class_list = quarter.split(', ')
-                if class_name not in class_list:
-                    class_list.append(class_name)
-                    class_list = '%s' % ', '.join(map(str, class_list))
-                    db(db.instructors.name == change['value']).update(**{change['key']: class_list})
+            # # cross-reference and update instr table
+            # instructor_name = db(db.classes.id == change['id']).select().as_list()[0][change['key']]
+            # # need previous entry
+            # instructor_entry = db(db.instructors.id == change['value']).select().as_list()
+            
+            # instructor_prev = db('CSE 3' in db.instructors[change['key']]).select().as_list()
+            # print("HUH",instructor_entry, change, instructor_prev)
+            # quarter = instructor_entry[0][change['key']]
+            # class_name = db(db.classes.id == change['id']).select().as_list()[0]['class_name']
+            # if quarter is None:
+            #     db(db.instructors.name == change['value']).update(**{change['key']: class_name})
+            # else:
+            #     class_list = quarter.split(', ')
+            #     if class_name not in class_list:
+            #         class_list.append(class_name)
+            #         class_list = '%s' % ', '.join(map(str, class_list))
+            #         db(db.instructors.name == change['value']).update(**{change['key']: class_list})
+
+            class_entry = db((db.classes.id == change['row']['id']) & (db.classes.planner_id == planner_id)).select().as_list()
+            instructor_name = class_entry[0]['class_name']
+            # class_list = instructor_entry[0][change['key']]
+            # if class_list not None:
+            #     class_list = class_list.split(', ')  # current classes
+
+            # new_class_list = change['value'].split(', ')
+            # new_class_entry = '%s' % ', '.join(map(str, new_class_list))
+            # print(change['key'], new_class_list)
+            prev_db = db((db.classes.id == change['row']['id']) & (db.classes.planner_id == planner_id)).select().as_list()[0]
+            db((db.classes.id == change['row']['id'])& (db.classes.planner_id == planner_id)).update(
+                class_name = change['row']['class_name'],
+                class_type = change['row']['class_type'],
+                quarter_1 = change['row']['quarter_1'],
+
+
+                quarter_2 = change['row']['quarter_2'],
+
+
+                quarter_3 = change['row']['quarter_3'],
+
+
+                summer_1 = change['row']['summer_1'],
+
+
+                summer_2 = change['row']['summer_2'],
+
+                )
+            new_db = db((db.classes.id == change['row']['id']) & (db.classes.planner_id == planner_id)).select().as_list()[0]
+            
+            new_changes = {}
+            classes_changed = []
+            for quarter in ['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']:
+                if prev_db[quarter] == new_db[quarter]:
+                    continue
+                
+                   
+                class_query = db((db.instructors.name == new_db[quarter])& (db.instructors.planner_id == planner_id)).select().as_list()
+                if len(class_query) == 0:
+                    continue
+                class_query = class_query[0]
+                print(class_query,  new_db[quarter])
+                if quarter == 'quarter_1':
+                    
+                        
+                    db(db.instructors.id == class_query['id']).update(quarter_1_1 = new_db['class_name'])
+                    class_query = db((db.instructors.name == new_db[quarter])& (db.instructors.planner_id == planner_id)).select().as_list()[0]
+                    update_str = class_query[quarter+'_1']
+                    for i in range(2,7):
+                        st = class_query[quarter+'_'+str(i)]
+                        if st is not None and st is not "":
+                            update_str+=', '+st
+                    db(db.instructors.id == class_query['id']).update(quarter_1 = update_str)
+                elif quarter == 'quarter_2':
+                    db(db.instructors.id == class_query['id']).update(quarter_2_1 = new_db['class_name'])
+                elif quarter == 'quarter_3':
+                    db(db.instructors.id == class_query['id']).update(quarter_3_1 = new_db['class_name'])
+                elif quarter == 'summer_1':
+                    db(db.instructors.id == class_query['id']).update(summer_1_1 = new_db['class_name'])
+                elif quarter == 'summer_2':
+                    db(db.instructors.id == class_query['id']).update(summer_2_1 = new_db['class_name'])
         # CHANGE TO INSTRUCTORS TAB
         elif change['table'] == 'instr':
             # update instr
-            instructor_entry = db(db.instructors.id == change['id']).select().as_list()
+            instructor_entry = db((db.instructors.id == change['row']['id']) & (db.instructors.planner_id == planner_id)).select().as_list()
             instructor_name = instructor_entry[0]['name']
             # class_list = instructor_entry[0][change['key']]
             # if class_list not None:
             #     class_list = class_list.split(', ')  # current classes
 
-            new_class_list = change['value'].split(', ')
-            new_class_entry = '%s' % ', '.join(map(str, new_class_list))
+            # new_class_list = change['value'].split(', ')
+            # new_class_entry = '%s' % ', '.join(map(str, new_class_list))
             # print(change['key'], new_class_list)
-            db(db.instructors.id == change['id']).update(**{change['key']: new_class_entry})
+            prev_db = db((db.instructors.id == change['row']['id']) & (db.instructors.planner_id == planner_id)).select().as_list()[0]
+            db((db.instructors.id == change['row']['id'])& (db.instructors.planner_id == planner_id)).update(name = change['row']['name'],
+                email = change['row']['email'],
+                quarter_1 = change['row']['quarter_1'],
+                quarter_1_1 = change['row']['quarter_1_1'],
+                quarter_1_2 = change['row']['quarter_1_2'],
+                quarter_1_3 = change['row']['quarter_1_3'],
+                quarter_1_4 = change['row']['quarter_1_4'],
+                quarter_1_5 = change['row']['quarter_1_5'],
+                quarter_1_6 = change['row']['quarter_1_6'],
+
+                quarter_2 = change['row']['quarter_2'],
+                quarter_2_1 = change['row']['quarter_2_1'],
+                quarter_2_2 = change['row']['quarter_2_2'],
+                quarter_2_3 = change['row']['quarter_2_3'],
+                quarter_2_4 = change['row']['quarter_2_4'],
+                quarter_2_5 = change['row']['quarter_2_5'],
+                quarter_2_6 = change['row']['quarter_2_6'],
+
+                quarter_3 = change['row']['quarter_3'],
+                quarter_3_1 = change['row']['quarter_3_1'],
+                quarter_3_2 = change['row']['quarter_3_2'],
+                quarter_3_3 = change['row']['quarter_3_3'],
+                quarter_3_4 = change['row']['quarter_3_4'],
+                quarter_3_5 = change['row']['quarter_3_5'],
+                quarter_3_6 = change['row']['quarter_3_6'],
+
+                summer_1 = change['row']['summer_1'],
+                summer_1_1 = change['row']['summer_1_1'],
+                summer_1_2 = change['row']['summer_1_2'],
+                summer_1_3 = change['row']['summer_1_3'],
+                summer_1_4 = change['row']['summer_1_4'],
+                summer_1_5 = change['row']['summer_1_5'],
+                summer_1_6 = change['row']['summer_1_6'],
+
+                summer_2 = change['row']['summer_2'],
+                summer_2_1 = change['row']['summer_2_1'],
+                summer_2_2 = change['row']['summer_2_2'],
+                summer_2_3 = change['row']['summer_2_3'],
+                summer_2_4 = change['row']['summer_2_4'],
+                summer_2_5 = change['row']['summer_2_5'],
+                summer_2_6 = change['row']['summer_2_6'],
+                )
+            new_db = db((db.instructors.id == change['row']['id']) & (db.instructors.planner_id == planner_id)).select().as_list()[0]
             
+            new_changes = {}
+            classes_changed = []
+            for quarter in ['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']:
+                if prev_db[quarter] == new_db[quarter]:
+                    continue
+                for section in range(1,7): # probably shouldnt use magic numbers here
+                    if prev_db[quarter+'_'+str(section)] == new_db[quarter+'_'+str(section)]:
+                        continue
+                    else:
+                        class_query = db((db.classes.class_name == new_db[quarter+'_'+str(section)])& (db.classes.planner_id == planner_id)).select().as_list()
+                        if len(class_query) == 0:
+                            continue
+                        class_query = class_query[0]
+                        # print(class_query)
+                        if quarter == 'quarter_1':
+                            db(db.classes.id == class_query['id']).update(quarter_1 = new_db['name'])
+                        elif quarter == 'quarter_2':
+                            db(db.classes.id == class_query['id']).update(quarter_2 = new_db['name'])
+                        elif quarter == 'quarter_3':
+                            db(db.classes.id == class_query['id']).update(quarter_3 = new_db['name'])
+                        elif quarter == 'summer_1':
+                            db(db.classes.id == class_query['id']).update(summer_1 = new_db['name'])
+                        elif quarter == 'summer_2':
+                            db(db.classes.id == class_query['id']).update(summer_2 = new_db['name'])
+                        # if class_query['id'] in new_changes:
+                        #     new_changes[class_query['id']]['row'][quarter] = new_db['name']
+                        #     print(quarter, prev_db['name'])
+                        # else:
+                        #     new_changes[class_query['id']] = {'table': 'classes', 'row': class_query}
+                        #     new_changes[class_query['id']]['row'][quarter] = new_db['name']
+                            # print(quarter, prev_db['name'])
+            # if len(new_changes) != 0:
+                
+            #     redirect(URL('update_tables', planner_id, new_changes))
             # TODO: cross-reference and classes table
             # print('new list: {}'.format(new_class_list))
-            for new_class in new_class_list:
-                # check CLASS table,
-                class_check = db(db.classes.class_name == new_class).select().as_list()
-                # print(class_check)
-                # if no isntr listed:
-                if class_check[0][change['key']] is None:
-                    # update with this instr
-                    db(db.classes.class_name == new_class).update(**{change['key']: instructor_name})
-                # elif class has different instr:
-                elif class_check[0][change['key']] is not instructor_name:                    
-                    # add new (duplicate) class with this instr
-                    db.classes.insert(
-                        class_name = new_class,
-                        class_type = class_check[0]['class_name'].split(" ")[0], 
-                        class_num = class_check[0]['class_name'].split(" ")[1],
-                        class_sub = class_check[0]['class_sub'],
-                        class_desc = class_check[0]['class_desc'],
-                        href = class_check[0]['href'],
-                        default_inst = class_check[0]['default_inst'].split(", "),
-                        default_quarters = class_check[0]['default_quarters'].split(", "),
-                        planner_id = class_check[0]['planner_id']
-                    )
-                    classes = db(db.classes.class_name == new_class).select().as_list()
-                    new_id = max([class_entry['id'] for class_entry in classes])
-                    # print('ID: ', classes[-1]['id'])
-                    db((db.classes.class_name == new_class) & (db.classes.id == new_id)).update(**{change['key']: instructor_name})
+            # for new_class in new_class_list:
+            #     # check CLASS table,
+            #     class_check = db(db.classes.class_name == new_class).select().as_list()
+            #     print(class_check)
+            #     # if no isntr listed:
+            #     if class_check[0][change['key']] is None:
+            #         # update with this instr
+            #         db(db.classes.class_name == new_class).update(**{change['key']: instructor_name})
+            #     # elif class has different instr:
+            #     elif class_check[0][change['key']] is not instructor_name:                    
+            #         # add new (duplicate) class with this instr
+            #         db.classes.insert(
+            #             class_name = new_class,
+            #             class_type = class_check[0]['class_name'].split(" ")[0], 
+            #             class_num = class_check[0]['class_name'].split(" ")[1],
+            #             class_sub = class_check[0]['class_sub'],
+            #             class_desc = class_check[0]['class_desc'],
+            #             href = class_check[0]['href'],
+            #             default_inst = class_check[0]['default_inst'].split(", "),
+            #             default_quarters = class_check[0]['default_quarters'].split(", "),
+            #             planner_id = class_check[0]['planner_id']
+            #         )
+            #         classes = db(db.classes.class_name == new_class).select().as_list()
+            #         new_id = max([class_entry['id'] for class_entry in classes])
+            #         # print('ID: ', classes[-1]['id'])
+            #         db((db.classes.class_name == new_class) & (db.classes.id == new_id)).update(**{change['key']: instructor_name})
     # redirect(URL('table'))
+    redirect(URL('table', planner_id))
     time.sleep(1)
-    return "ok"
+    
 
 @action('search')
 @action.uses()

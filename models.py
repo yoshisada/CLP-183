@@ -63,11 +63,47 @@ db.define_table(
     'instructors',
     Field('email'),
     Field('name'),
+
     Field('quarter_1'),
+    Field('quarter_1_1'),
+    Field('quarter_1_2'),
+    Field('quarter_1_3'),
+    Field('quarter_1_4'),
+    Field('quarter_1_5'),
+    Field('quarter_1_6'),
+
     Field('quarter_2'),
+    Field('quarter_2_1'),
+    Field('quarter_2_2'),
+    Field('quarter_2_3'),
+    Field('quarter_2_4'),
+    Field('quarter_2_5'),
+    Field('quarter_2_6'),
+
     Field('quarter_3'),
+    Field('quarter_3_1'),
+    Field('quarter_3_2'),
+    Field('quarter_3_3'),
+    Field('quarter_3_4'),
+    Field('quarter_3_5'),
+    Field('quarter_3_6'),
+
     Field('summer_1'),
+    Field('summer_1_1'),
+    Field('summer_1_2'),
+    Field('summer_1_3'),
+    Field('summer_1_4'),
+    Field('summer_1_5'),
+    Field('summer_1_6'),
+
     Field('summer_2'),
+    Field('summer_2_1'),
+    Field('summer_2_2'),
+    Field('summer_2_3'),
+    Field('summer_2_4'),
+    Field('summer_2_5'),
+    Field('summer_2_6'),
+
     Field('department'),
     Field('label'), # professor, lecturer, etc
     Field('access'), #can they access the DB or not
