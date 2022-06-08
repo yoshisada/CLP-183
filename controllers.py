@@ -154,8 +154,10 @@ def add_table():
                     )
 
         redirect(URL('index'))
+    active_tables = db(db.planners.status == True).select().as_list()
     return dict(
         # This is the signed URL for the callback.
+        active_tables = active_tables,
         error = False,
         form = form
     )
@@ -175,7 +177,9 @@ def add_admin():
         db.admin.update_or_insert(db.admin.email == form.vars['User_Email'], email = form.vars['User_Email'], true_permission = 'admin')
 
         redirect(URL('index'))
+    active_tables = db(db.planners.status == True).select().as_list()
     return dict(
+        active_tables = active_tables,
         # This is the signed URL for the callback.
         error = False,
         form = form
@@ -191,8 +195,8 @@ def assignments(planner_id, perm):
     else:
         assignments = db((db.instructors.planner_id == planner_id) & (db.instructors.email == get_user_email())).select().as_list()
     print(assignments)
-
-    return dict(assignments = assignments)
+    active_tables = db(db.planners.status == True).select().as_list()
+    return dict(url_signer=url_signer,assignments = assignments, active_tables = active_tables)
 
 @action('change_view_all', method=["GET","POST"])
 @action.uses('change_view_all.html', url_signer.verify())
@@ -230,6 +234,7 @@ def table(table_id = None):
     return dict(
         # This is the signed URL for the callback.
         url_signer = url_signer,
+        # active_tables = active_tables,
         planner = planner,
         # instructors = instructors,
         load_classes_url = URL('load_classes', table_id, signer=url_signer),
@@ -274,6 +279,7 @@ def load_instructors(table_id = None):
 @action.uses(url_signer.verify(), db)
 def add_class(table_id = None):
     print(request.json)
+    active_tables = db(db.planners.status == True).select().as_list()
     id = db.classes.insert(
         class_name=request.json.get('class_name'),
         class_type=request.json.get('class_type'),
