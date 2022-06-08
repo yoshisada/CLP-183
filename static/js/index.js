@@ -155,6 +155,7 @@ let init = (app) => {
     };
     
     app.toggle_edit_mode = function() {
+        console.log(app.vue.edit_mode)
         app.vue.edit_mode = !app.vue.edit_mode;
     };
 
@@ -170,19 +171,48 @@ let init = (app) => {
         current_tab_changes = (table_view == app.data.rows ? app.data.rows_changes : app.data.rows_i_changes);
 
         let row = table[row_idx];
+        console.log("is this working?", row, table_view)
         if (row._state[fn] === 'edit') {  // if editing
+            
+            row._state[fn] = "edited";
+            console.log(row._server_vals, row)
+            if (['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2'].includes(fn) && table == app.vue.rows_i){
+                row[fn] = row[fn+'_1']
+                
+                for (let i = 2; i <= 7; i+=1){
+                    console.log("HUH", row[fn+'_'+i])
+                    if (row[fn+'_'+i] == "" || row[fn+'_'+i] == null){
+                        continue;
+                    }
+                    row[fn] += ',' + row[fn+'_'+i];
+                }
+                // row[fn] = row[fn+'_1'] + ', '
+                // row[fn] = row[fn] + row[fn+'_2'] + ', '
+                // row[fn] = row[fn] + row[fn+'_3'] + ', '
+                // row[fn] = row[fn] + row[fn+'_4'] + ', '
+                // row[fn] = row[fn] + row[fn+'_5'] + ', '
+                // row[fn] = row[fn] + row[fn+'_6']
+            }
             if (row._server_vals[fn] !== row[fn]) {  // and a change has been made
                 // make record of change
+                console.log("I MADE IT HERE", row)
+                // current_tab_changes[row_idx] = {
+                //     'table': (table_view == app.data.rows ? 'classes' : 'instr'),
+                //     'id': row.id,
+                //     'key': fn,
+                //     'value': row[fn],
+                //     'title': (table_view == app.data.rows ? row['class_name'] : row['name']),
+                // };
                 current_tab_changes[row_idx] = {
                     'table': (table_view == app.data.rows ? 'classes' : 'instr'),
-                    'id': row.id,
-                    'key': fn,
-                    'value': row[fn],
-                };
+                    'row': row
+                }
+                
                 // TODO: change to some other visual indicator
-                row._state[fn] = "edit";
+                row._state[fn] = "edited";
             } else {
                 row._state[fn] = "clean";
+                // row._state[fn] = "edited";
                 // remove record of change
                 delete current_tab_changes[row_idx];
             }
@@ -206,7 +236,9 @@ let init = (app) => {
     //     console.log(row.is_error)
     // };
 
+
     app.cancel_edits = function() {
+        console.log('canceling edit')
         app.cancel_edit(app.data.rows);
         app.cancel_edit(app.data.rows_i);
 

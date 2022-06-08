@@ -19,7 +19,7 @@
       [[if planner['status'] == "True":]]
       <div class="block" v-if="edit_mode">
         <button class="button is-primary" @click="save_table_changes">Save</button>
-        <button class="button is-warning" @click="cancel_edit">Cancel</button>
+        <button class="button is-warning" @click="cancel_edits">Cancel</button>
       </div>
       <div class="block" v-else>
         
@@ -97,7 +97,7 @@
                 <th></th>
               </tr>
               <tr v-for="r in rows">
-                <td v-for="fn in ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times']">
+                <td v-for="fn in ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times', 'id']">
                   <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
                     
                     <input type="text" class="input" v-model="r[fn]"
@@ -164,8 +164,23 @@
               </tr>
               <tr v-for="r in rows_i">
                 <td v-for="fn in ['name', 'email', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2']">
-                  <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
+                  <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}" >
 <!-- Active class bind to hasError a css to chec is is_error is set true-->                    
+                    <div v-show="['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2'].includes(fn)">
+                    <input type="text" class="input" v-model="r[fn]"
+                          
+                          :class="{'is-focused': r._state[fn] === 'edit',
+                                  'is-static': r._state[fn] === 'clean'}"
+                          :readonly="r._state[fn] === 'clean'"
+                          @click="start_edit(rows_i, r._idx, fn)"
+                          
+                          
+                          v-bind:style= "[r._state[fn] === 'edited' ? {'background-color': '#00FF00'} : {}]"
+                          
+                          
+                    />
+                  </div>
+                  <div v-show="!['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2'].includes(fn)">
                     <input type="text" class="input" v-model="r[fn]"
                           
                           :class="{'is-focused': r._state[fn] === 'edit',
@@ -173,7 +188,34 @@
                           :readonly="r._state[fn] === 'clean'"
                           @click="start_edit(rows_i, r._idx, fn)"
                           @blur="stop_edit(rows_i, r._idx, fn)"
+                          
+                          
+                          v-bind:style= "[r._state[fn] === 'edited' ? {'background-color': '#00FF00'} : {}]"
+                          
+                          
                     />
+                  </div>
+                    <div v-show="r._state[fn] === 'edit' && ['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2'].includes(fn)" 
+                    style="position: absolute; display: flex; flex-direction: column; left: 0;
+                    right: 0;
+                    top: 102%;
+                    padding: 10px;
+                    width: 150%;
+                    background-color: white;
+                    z-index: 50;
+                    border-radius: 8px;
+                    box-shadow: 2px 2px rgba(0, 0, 0, 0.2); " @blur="stop_edit(rows_i, r._idx, fn)">
+                      <div>Class 1: <input type="text" class="input" v-model="r[fn+'_1']"/></div>
+                      <div>Class 2: <input type="text" class="input" v-model="r[fn+'_2']"/></div>
+                      <div>Class 3: <input type="text" class="input" v-model="r[fn+'_3']"/></div>
+                      <div>Class 4: <input type="text" class="input" v-model="r[fn+'_4']"/></div>
+                      <div>Class 5: <input type="text" class="input" v-model="r[fn+'_5']"/></div>
+                      <div>Class 5: <input type="text" class="input" v-model="r[fn+'_6']"/></div>
+                      <div style="display: flex;">
+                      <div style="margin-top: 10px;"><a class="button is-success" @click="stop_edit(rows_i, r._idx, fn)">Save</a></div>
+                      <div style="margin-top: 10px;"><a class="button is-danger" @click="r._state[fn] = 'clean'; r[fn+'_1'] = ''; r[fn+'_2'] = ''; r[fn+'_3'] = ''; r[fn+'_4'] = ''; r[fn+'_5'] = ''; r[fn+'_6'] = '';">Cancel</a></div>
+                    </div>
+                    </div>
                   </div>
 
 <!-- Condition Vue for Error Text -->
@@ -187,7 +229,7 @@
                           @blur="stop_edit(r._idx, fn)"
                     />
                   </div>
-
+                  
                 </td>
                 <td><a  href="edit_classes.html" class="button is-warning" v-if="edit_mode">
                   <i class="fa fa-edit"></i></a></td>
@@ -198,6 +240,7 @@
                   <!-- <td>
                     <i :class="{ hasError: r.is_error }"> {{ r.is_error }}</i></td> -->
               </tr>
+              <tr> <td></td> </tr>
               </table>
               <button @click="set_add_status(true)" class="button is-primary" v-if="edit_mode">
                 <i class="fa fa-plus fa-fw"></i> Add Instructor
