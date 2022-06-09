@@ -196,7 +196,9 @@
                           @click="start_edit(rows_i, r._idx, fn)"
                           @blur="stop_edit(rows_i, r._idx, fn)"
                           v-bind:style= "[r._state[fn] === 'edited' ? {'background-color': '#00FF00'} : {}]"
+                    
                     />
+                    
                   </div>
                     <div v-show="r._state[fn] === 'edit' && ['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2'].includes(fn)" 
                     style="position: absolute; display: flex; flex-direction: column; left: 0;
