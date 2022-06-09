@@ -38,40 +38,20 @@
             
             <a href="[[=URL('table', table['id'], signer=url_signer)]]"><div class="navbar-item">[[=table["name"]]]</div>
             </a>
-            <!-- <a href="[[=URL('basic_grid') ]]" class="navbar-item">
-              1
-            </a>
-            <a href="[[=URL('columns') ]]" class="navbar-item">
-              2
-            </a>
-            <a href="[[=URL('search') ]]" class="navbar-item">
-              3
-            </a>
-            <a href="[[=URL('crud') ]]" class="navbar-item">
-              4
-            </a>
-            <a href="[[=URL('action_buttons') ]]" class="navbar-item">
-              5
-            </a> -->
             [[pass]]
           </div>
         </div>
   <!-- Dropdown 2 -->
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link">
-            Advanced Planner
+            Archived Planners
           </a>
-  
           <div class="navbar-dropdown">
-            <a href="[[=URL('advanced_columns') ]]" class="navbar-item">
-              1
+            [[for table in inactive_tables:]]
+            
+            <a href="[[=URL('table', table['id'], signer=url_signer)]]"><div class="navbar-item">[[=table["name"]]]</div>
             </a>
-            <a href="[[=URL('advanced_search') ]]" class="navbar-item">
-              2
-            </a>
-            <a href="[[=URL('advanced_htmx') ]]" class="navbar-item">
-              2
-            </a>
+            [[pass]]
           </div>
         </div>
 <!-- Adding search breaks table??? -->
