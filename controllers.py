@@ -154,10 +154,13 @@ def add_table():
                     )
 
         redirect(URL('index'))
+    inactive_tables = db(db.planners.status == False).select().as_list()
     active_tables = db(db.planners.status == True).select().as_list()
     return dict(
         # This is the signed URL for the callback.
+        url_signer = url_signer,
         active_tables = active_tables,
+        inactive_tables=inactive_tables,
         error = False,
         form = form
     )
@@ -178,8 +181,11 @@ def add_admin():
 
         redirect(URL('index'))
     active_tables = db(db.planners.status == True).select().as_list()
+    inactive_tables = db(db.planners.status == False).select().as_list()
     return dict(
+        url_signer = url_signer,
         active_tables = active_tables,
+        inactive_tables = inactive_tables,
         # This is the signed URL for the callback.
         error = False,
         form = form
@@ -195,8 +201,9 @@ def assignments(planner_id, perm):
     else:
         assignments = db((db.instructors.planner_id == planner_id) & (db.instructors.email == get_user_email())).select().as_list()
     print(assignments)
+    inactive_tables = db(db.planners.status == False).select().as_list()
     active_tables = db(db.planners.status == True).select().as_list()
-    return dict(url_signer=url_signer,assignments = assignments, active_tables = active_tables)
+    return dict(url_signer=url_signer,assignments = assignments, active_tables = active_tables, inactive_tables = inactive_tables)
 
 @action('change_view_all', method=["GET","POST"])
 @action.uses('change_view_all.html', url_signer.verify())
