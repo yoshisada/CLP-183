@@ -1,4 +1,4 @@
-[[extend 'layout.html']]
+[[extend 'layout.html']] [[if user_email != None:]]
 
 <style>
 [v-cloak] {
@@ -255,7 +255,7 @@
     </div>
   </div>
 </div>
-
+[[pass]]
 
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->

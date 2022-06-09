@@ -248,7 +248,8 @@ def table(table_id = None):
         edit_instructor_url = URL('edit_instructor', signer=url_signer),
         update_tables_url = URL('update_tables', table_id, None, signer=url_signer),
         active_tables = active_tables,
-        inactive_tables = inactive_tables
+        inactive_tables = inactive_tables,
+        user_email = get_user_email(),
         # archive_url = URL('archive', table_id, signer=url_signer)
     )
 
