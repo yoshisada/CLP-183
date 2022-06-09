@@ -100,7 +100,7 @@
                 <th></th>
               </tr>
               <tr v-for="r in rows">
-                <td v-for="fn in ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times', 'id']">
+                <td v-for="fn in ['class_name', 'class_type', 'quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2', 'course_time_sections', 'actual_times']">
                   <div class="control" :class="{'is-loading': r._state[fn] === 'pending'}">
                     
                     <input type="text" class="input" v-model="r[fn]"
