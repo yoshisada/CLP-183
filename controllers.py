@@ -268,14 +268,23 @@ def unarchive(table_id = None):
 @action('load_classes/<table_id:int>')
 @action.uses(url_signer.verify(), db)
 def load_classes(table_id = None):
+    ac_classes = db(db.classes.planner_id == table_id).select('class_name').as_list()
+    ac_classes_fix = []
+    for i in ac_classes: # probably should use map for this
+        ac_classes_fix.append(i['_extra']['class_name'])
     rows = db(db.classes.planner_id == table_id).select().as_list()
-    return dict(rows=rows)
+    return dict(rows=rows, ac_classes = ac_classes_fix)
 
 @action('load_instructors/<table_id:int>')
 @action.uses(url_signer.verify(), db)
 def load_instructors(table_id = None):
+    ac_instructors = db(db.instructors.planner_id == table_id).select('name').as_list()
+    ac_instructors_fix = []
+    for i in ac_instructors: # probably should use map for this
+        ac_instructors_fix.append(i['_extra']['name'])
     rows = db(db.instructors.planner_id == table_id).select().as_list()
-    return dict(rows=rows)
+    
+    return dict(rows=rows, ac_instructors = ac_instructors_fix)
 
 @action('add_class/<table_id:int>', method="POST")
 @action.uses(url_signer.verify(), db)

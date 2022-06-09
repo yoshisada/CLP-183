@@ -19,6 +19,8 @@ let init = (app) => {
         add_instructor_name: "",
         add_instructor_email: "",
         rows: [],
+        ac_instructor: [],
+        ac_classes: [],
         rows_i: [],
         rows_changes: {},
         rows_i_changes: {}
@@ -82,6 +84,7 @@ let init = (app) => {
                 app.reset_form();
                 app.set_add_status(false);
             });
+            // location.reload();
     };
 
     app.add_instructor = function () {
@@ -122,6 +125,7 @@ let init = (app) => {
                 app.reset_form();
                 app.set_add_status(false);
             });
+            // location.reload();
     };
 
 
@@ -383,10 +387,12 @@ let init = (app) => {
     app.init = () => {
         axios.get(load_classes_url).then(function (response) {
             app.vue.rows = app.decorate(app.enumerate(response.data.rows));
+            app.vue.ac_classes = app.decorate(app.enumerate(response.data.ac_classes));
         });
 
         axios.get(load_instructors_url).then(function (response) {
             app.vue.rows_i = app.decorate(app.enumerate(response.data.rows));
+            app.vue.ac_instructor = app.decorate(app.enumerate(response.data.ac_instructors));
         });
     };
 

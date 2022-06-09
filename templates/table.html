@@ -108,8 +108,14 @@
                                   'is-static': r._state[fn] === 'clean'}"
                           :readonly="r._state[fn] === 'clean'"
                           @click="start_edit(rows, r._idx, fn)"
-                          @blur="stop_edit(rows, r._idx, fn)"
+                          v-on:keyup.enter = "stop_edit(rows, r._idx, fn)"
+                          v-bind:style= "[r._state[fn] === 'edited' ? {'background-color': '#00FF00'} : {}]"
+                          
                     />
+                    <div v-show = "r._state[fn] === 'edit'" style="position: absolute; background-color: white; width: 200%; border-radius: 8px;
+                    box-shadow: 2px 2px rgba(0, 0, 0, 0.2); z-index: 50;">
+                      <div @click="r[fn] = ac"  v-show = "ac.includes(r[fn])" v-for="ac in ac_instructor" style="padding: 5px;">{{ac}} <hr style="margin: 2px;"/></div>
+                    </div>
   
                   </div>
                 </td>
@@ -189,11 +195,7 @@
                           :readonly="r._state[fn] === 'clean'"
                           @click="start_edit(rows_i, r._idx, fn)"
                           @blur="stop_edit(rows_i, r._idx, fn)"
-                          
-                          
                           v-bind:style= "[r._state[fn] === 'edited' ? {'background-color': '#00FF00'} : {}]"
-                          
-                          
                     />
                   </div>
                     <div v-show="r._state[fn] === 'edit' && ['quarter_1', 'quarter_2', 'quarter_3', 'summer_1', 'summer_2'].includes(fn)" 
